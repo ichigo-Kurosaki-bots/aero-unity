@@ -58,7 +58,7 @@
       font-weight: 700;
       font-size: 0.8rem;
       cursor: pointer;
-      display: none; /* Hidden by default for regular users */
+      display: none; /* Hidden for regular users */
       align-items: center;
       gap: 5px;
     }
@@ -92,9 +92,9 @@
     }
 
     .pill.active {
-      background: #fff;
+      background: var(--accent);
       color: #000;
-      border-color: #fff;
+      border-color: var(--accent);
     }
 
     .section-title {
@@ -326,7 +326,7 @@
     <div class="brand">
       <h1>Aero Unity Movies</h1>
     </div>
-    <!-- ADD FILE button is controlled dynamically for admin-only viewing -->
+    <!-- ADD FILE button is hidden for regular users, shown only with ?admin=true -->
     <button class="btn-add" id="addFileBtn" onclick="openAddModal()">
       <i class="fa-solid fa-plus"></i> ADD FILE
     </button>
@@ -335,11 +335,11 @@
   <div class="container" id="homeView">
     <!-- Category Navigation Pills -->
     <div class="pill-nav">
-      <div class="pill active">All</div>
-      <div class="pill">Movie</div>
-      <div class="pill">TV Show</div>
-      <div class="pill">Anime</div>
-      <div class="pill">Asian</div>
+      <div class="pill active" onclick="filterCategory('All', this)">All</div>
+      <div class="pill" onclick="filterCategory('Movie', this)">Movie</div>
+      <div class="pill" onclick="filterCategory('TV Show', this)">TV Show</div>
+      <div class="pill" onclick="filterCategory('Anime', this)">Anime</div>
+      <div class="pill" onclick="filterCategory('Asian', this)">Asian</div>
     </div>
 
     <!-- Search Bar -->
@@ -406,11 +406,16 @@
       }
     ];
 
-    let moviesList = JSON.parse(localStorage.getItem('aero_movies_v5')) || defaultMovies;
+    let moviesList = JSON.parse(localStorage.getItem('aero_unity_movies_v6')) || defaultMovies;
+    let currentCategory = 'All';
 
     function renderMovies(data) {
       const grid = document.getElementById('movieGrid');
       grid.innerHTML = '';
+      if(data.length === 0) {
+        grid.innerHTML = `<p style="color:var(--text-muted); grid-column:span 2; text-align:center; padding:30px;">No movies found.</p>`;
+        return;
+      }
       data.forEach(movie => {
         grid.innerHTML += `
           <div class="movie-card" onclick="openDetail(${movie.id})">
@@ -459,13 +464,24 @@
       document.getElementById('homeView').style.display = 'block';
     }
 
+    function filterCategory(cat, element) {
+      currentCategory = cat;
+      document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+      element.classList.add('active');
+      filterMovies();
+    }
+
     function filterMovies() {
       const q = document.getElementById('searchInput').value.toLowerCase();
-      const filtered = moviesList.filter(m => m.title.toLowerCase().includes(q) || m.genre.toLowerCase().includes(q));
+      const filtered = moviesList.filter(m => {
+        const matchesQuery = m.title.toLowerCase().includes(q) || m.genre.toLowerCase().includes(q);
+        const matchesCat = currentCategory === 'All' || m.genre.includes(currentCategory) || (currentCategory === 'Movie' && !m.genre.includes('TV'));
+        return matchesQuery && matchesCat;
+      });
       renderMovies(filtered);
     }
 
-    // Owner-only check: Shows the ADD FILE button only when ?admin=true is in the URL
+    // Owner-only check: Reveals the ADD FILE button only when ?admin=true is appended to the URL
     function checkAdmin() {
       const params = new URLSearchParams(window.location.search);
       if (params.get('admin') === 'true') {
@@ -490,8 +506,8 @@
         desc: "Newly added title to Aero Unity Movies vault."
       };
       moviesList.unshift(newMovie);
-      localStorage.setItem('aero_movies_v5', JSON.stringify(moviesList));
-      renderMovies(moviesList);
+      localStorage.setItem('aero_unity_movies_v6', JSON.stringify(moviesList));
+      filterMovies();
       closeAddModal();
     }
 
