@@ -73,11 +73,6 @@
       letter-spacing: -0.5px;
     }
 
-    .brand-text p {
-      font-size: 0.7rem;
-      color: var(--text-muted);
-    }
-
     .btn-add {
       background: var(--accent-blue);
       color: #fff;
@@ -466,13 +461,13 @@
         <div class="form-group"><label>Poster Image URL</label><input type="url" id="mPoster" placeholder="https://..."></div>
         
         <div style="margin: 15px 0 10px 0; font-weight:700; font-size:0.9rem; display:flex; justify-content:space-between; align-items:center;">
-          <span>EPISODES / MULTIPLE FILES</span>
+          <span>QUALITIES / EPISODES / MULTIPLE FILES</span>
           <button type="button" class="btn-action primary" onclick="addEpisodeRow()" style="padding:4px 10px; font-size:0.75rem;">+ Add File</button>
         </div>
         
         <div id="episodesContainer">
           <div class="ep-row">
-            <input type="text" placeholder="Episode / File Name (e.g. Episode 1)" class="ep-name" style="width:100%; padding:6px; margin-bottom:6px; background:#000; border:1px solid #1E2538; color:#fff;" required>
+            <input type="text" placeholder="File / Episode / Quality Name (e.g. 720p or Episode 1)" class="ep-name" style="width:100%; padding:6px; margin-bottom:6px; background:#000; border:1px solid #1E2538; color:#fff;" required>
             <input type="url" placeholder="Direct Stream URL" class="ep-stream" style="width:100%; padding:6px; margin-bottom:6px; background:#000; border:1px solid #1E2538; color:#fff;" required>
             <input type="url" placeholder="Direct Download URL" class="ep-download" style="width:100%; padding:6px; background:#000; border:1px solid #1E2538; color:#fff;" required>
           </div>
@@ -514,13 +509,15 @@
         rating: "7.4",
         poster: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600",
         files: [
-          { name: "Full Movie (1080p)", streamUrl: "https://www.w3schools.com/html/mov_bbb.mp4", downloadUrl: "https://www.w3schools.com/html/mov_bbb.mp4" }
+          { name: "480p", streamUrl: "https://www.w3schools.com/html/mov_bbb.mp4", downloadUrl: "https://www.w3schools.com/html/mov_bbb.mp4" },
+          { name: "720p", streamUrl: "https://www.w3schools.com/html/mov_bbb.mp4", downloadUrl: "https://www.w3schools.com/html/mov_bbb.mp4" },
+          { name: "1080p", streamUrl: "https://www.w3schools.com/html/mov_bbb.mp4", downloadUrl: "https://www.w3schools.com/html/mov_bbb.mp4" }
         ],
-        desc: "Follows a courier tasked with delivering a package to a remote hospital amidst a outbreak."
+        desc: "Follows a courier tasked with delivering a package to a remote hospital amidst an outbreak."
       }
     ];
 
-    let moviesList = JSON.parse(localStorage.getItem('aero_unity_movies_v9')) || defaultMovies;
+    let moviesList = JSON.parse(localStorage.getItem('aero_unity_movies_v10')) || defaultMovies;
     let currentCategory = 'All';
 
     function renderMovies(data) {
@@ -583,7 +580,7 @@
         <div class="detail-title">${movie.title}</div>
         <div style="font-size:0.85rem; color:var(--accent); margin-bottom:10px;">⭐ ${movie.rating} / 10 &nbsp;•&nbsp; ${movie.year} &nbsp;•&nbsp; ${movie.genre}</div>
         <div class="detail-desc">${movie.desc || 'No description available for this title.'}</div>
-        <h4 style="margin-bottom:10px;">Available Files / Episodes:</h4>
+        <h4 style="margin-bottom:10px;">Available Qualities / Episodes:</h4>
         <div class="episodes-list">${episodesHtml}</div>
       `;
 
@@ -634,7 +631,7 @@
       const row = document.createElement('div');
       row.className = 'ep-row';
       row.innerHTML = `
-        <input type="text" placeholder="Episode / File Name" class="ep-name" style="width:100%; padding:6px; margin-bottom:6px; background:#000; border:1px solid #1E2538; color:#fff;" required>
+        <input type="text" placeholder="File / Episode / Quality Name (e.g. 720p)" class="ep-name" style="width:100%; padding:6px; margin-bottom:6px; background:#000; border:1px solid #1E2538; color:#fff;" required>
         <input type="url" placeholder="Direct Stream URL" class="ep-stream" style="width:100%; padding:6px; margin-bottom:6px; background:#000; border:1px solid #1E2538; color:#fff;" required>
         <input type="url" placeholder="Direct Download URL" class="ep-download" style="width:100%; padding:6px; background:#000; border:1px solid #1E2538; color:#fff;" required>
       `;
@@ -661,11 +658,11 @@
         genre: document.getElementById('mGenre').value,
         poster: document.getElementById('mPoster').value || 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600',
         files: files,
-        desc: "Newly added title to Aero Unity Movies vault."
+        desc: "This File Is Added By @Aero_Unity."
       };
 
       moviesList.unshift(newMovie);
-      localStorage.setItem('aero_unity_movies_v9', JSON.stringify(moviesList));
+      localStorage.setItem('aero_unity_movies_v10', JSON.stringify(moviesList));
       filterMovies();
       closeAddModal();
     }
