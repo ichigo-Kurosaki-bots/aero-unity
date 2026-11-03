@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aero Unity Movies - Discover Movies & TV Shows</title>
+  <title>Aero Unity Movies</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
@@ -43,7 +43,7 @@
     }
 
     .brand h1 {
-      font-size: 1.3rem;
+      font-size: 1.2rem;
       font-weight: 800;
       color: #fff;
       letter-spacing: -0.5px;
@@ -58,7 +58,7 @@
       font-weight: 700;
       font-size: 0.8rem;
       cursor: pointer;
-      display: flex;
+      display: none; /* Hidden by default for regular users */
       align-items: center;
       gap: 5px;
     }
@@ -190,7 +190,7 @@
       font-weight: 700;
     }
 
-    /* Detail View Screen (PhonoFilm Style) */
+    /* Detail View Screen */
     .detail-view {
       display: none;
       position: fixed;
@@ -208,7 +208,7 @@
       background: #000;
     }
 
-    .detail-hero img {
+    .detail-hero img, .detail-hero video {
       width: 100%;
       height: 100%;
       object-fit: cover;
@@ -324,13 +324,16 @@
 
   <header>
     <div class="brand">
-      <h1>PhonoFilm</h1>
+      <h1>Aero Unity Movies</h1>
     </div>
-    <div id="adminHeaderAction"></div>
+    <!-- ADD FILE button is controlled dynamically for admin-only viewing -->
+    <button class="btn-add" id="addFileBtn" onclick="openAddModal()">
+      <i class="fa-solid fa-plus"></i> ADD FILE
+    </button>
   </header>
 
   <div class="container" id="homeView">
-    <!-- Category Navigation -->
+    <!-- Category Navigation Pills -->
     <div class="pill-nav">
       <div class="pill active">All</div>
       <div class="pill">Movie</div>
@@ -355,7 +358,7 @@
     <div class="detail-content" id="detailContent"></div>
   </div>
 
-  <!-- Admin Add Movie Modal -->
+  <!-- Admin Add Movie Modal with Separate Stream & Download URLs -->
   <div class="modal" id="addModal">
     <div class="modal-content">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
@@ -403,7 +406,7 @@
       }
     ];
 
-    let moviesList = JSON.parse(localStorage.getItem('phonofilm_movies_v4')) || defaultMovies;
+    let moviesList = JSON.parse(localStorage.getItem('aero_movies_v5')) || defaultMovies;
 
     function renderMovies(data) {
       const grid = document.getElementById('movieGrid');
@@ -462,10 +465,11 @@
       renderMovies(filtered);
     }
 
+    // Owner-only check: Shows the ADD FILE button only when ?admin=true is in the URL
     function checkAdmin() {
       const params = new URLSearchParams(window.location.search);
       if (params.get('admin') === 'true') {
-        document.getElementById('adminHeaderAction').innerHTML = `<button class="btn-add" onclick="openAddModal()"><i class="fa-solid fa-plus"></i> ADD FILE</button>`;
+        document.getElementById('addFileBtn').style.display = 'flex';
       }
     }
 
@@ -483,10 +487,10 @@
         poster: document.getElementById('mPoster').value || 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600',
         streamUrl: document.getElementById('mStream').value,
         downloadUrl: document.getElementById('mDownload').value,
-        desc: "Newly added title to PhonoFilm vault."
+        desc: "Newly added title to Aero Unity Movies vault."
       };
       moviesList.unshift(newMovie);
-      localStorage.setItem('phonofilm_movies_v4', JSON.stringify(moviesList));
+      localStorage.setItem('aero_movies_v5', JSON.stringify(moviesList));
       renderMovies(moviesList);
       closeAddModal();
     }
