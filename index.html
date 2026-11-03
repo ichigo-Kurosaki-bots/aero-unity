@@ -71,7 +71,7 @@
       color: var(--text-muted);
     }
 
-    /* Admin Add File Button - Hidden by default */
+    /* Admin Add File Button - Hidden by default for regular users, unlocked via ?admin=true */
     .btn-add {
       background: var(--accent-blue);
       color: #fff;
@@ -300,7 +300,7 @@
       border: none;
     }
 
-    /* Bottom Navigation Bar (PhonoFilm Style) */
+    /* Bottom Navigation Bar */
     .bottom-nav {
       position: fixed;
       bottom: 0; left: 0; width: 100%;
@@ -385,7 +385,7 @@
         <p>CHANNEL ID: -1002722342948</p>
       </div>
     </div>
-    <!-- ADD FILE button is hidden for regular users, unlocked with ?admin=true -->
+    <!-- ADD FILE button: Hidden by default, unlocked only via ?admin=true -->
     <button class="btn-add" id="addFileBtn" onclick="openAddModal()">
       <i class="fa-solid fa-plus"></i> ADD FILE
     </button>
@@ -439,13 +439,13 @@
     </div>
   </div>
 
-  <!-- Bottom Navigation Bar -->
+  <!-- Bottom Navigation Bar (Visible to all users with Home button) -->
   <div class="bottom-nav">
-    <div class="nav-item active"><i class="fa-solid fa-house"><span>Home</span></i></div>
-    <div class="nav-item" onclick="document.getElementById('searchInput').focus()"><i class="fa-solid fa-compass"><span>Browse</span></i></div>
-    <div class="nav-item"><i class="fa-solid fa-circle-nodes"><span>Circles</span></i></div>
-    <div class="nav-item"><i class="fa-solid fa-layer-group"><span>Collections</span></i></div>
-    <div class="nav-item"><i class="fa-solid fa-user"><span>Me</span></i></div>
+    <div class="nav-item active" onclick="goHome()"><i class="fa-solid fa-house"></i><span>Home</span></div>
+    <div class="nav-item" onclick="document.getElementById('searchInput').focus()"><i class="fa-solid fa-compass"></i><span>Browse</span></div>
+    <div class="nav-item"><i class="fa-solid fa-circle-nodes"></i><span>Circles</span></div>
+    <div class="nav-item"><i class="fa-solid fa-layer-group"></i><span>Collections</span></div>
+    <div class="nav-item"><i class="fa-solid fa-user"></i><span>Me</span></div>
   </div>
 
   <script>
@@ -474,7 +474,7 @@
       }
     ];
 
-    let moviesList = JSON.parse(localStorage.getItem('aero_unity_movies_v7')) || defaultMovies;
+    let moviesList = JSON.parse(localStorage.getItem('aero_unity_movies_v8')) || defaultMovies;
     let currentCategory = 'All';
 
     function renderMovies(data) {
@@ -532,10 +532,16 @@
       document.getElementById('homeView').style.display = 'block';
     }
 
+    function goHome() {
+      closeDetail();
+      document.getElementById('searchInput').value = '';
+      filterCategory('All', document.querySelector('.pill-nav .pill'));
+    }
+
     function filterCategory(cat, element) {
       currentCategory = cat;
       document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-      element.classList.add('active');
+      if(element) element.classList.add('active');
       filterMovies();
     }
 
@@ -574,7 +580,7 @@
         desc: "Newly added title to Aero Unity Movies vault."
       };
       moviesList.unshift(newMovie);
-      localStorage.setItem('aero_unity_movies_v7', JSON.stringify(moviesList));
+      localStorage.setItem('aero_unity_movies_v8', JSON.stringify(moviesList));
       filterMovies();
       closeAddModal();
     }
