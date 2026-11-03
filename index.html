@@ -527,10 +527,7 @@
     }
 
     function checkAdmin() {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('admin') === 'true') {
-        document.getElementById('addFileBtn').style.display = 'flex';
-      }
+      document.getElementById('addFileBtn').style.display = 'flex';
     }
 
     function openAddModal() { document.getElementById('addModal').style.display = 'flex'; }
