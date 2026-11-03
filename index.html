@@ -3,18 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aero Unity Movies</title>
+  <title>Aero Unity Movies - Discover Movies & TV Shows</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
       --bg-dark: #07090E;
       --card-bg: #111520;
       --card-border: #1E2538;
-      --accent: #2563EB;
-      --accent-hover: #1D4ED8;
+      --accent: #E5A93B;
+      --accent-hover: #D4982A;
       --text-main: #F3F4F6;
       --text-muted: #9CA3AF;
-      --star-color: #F59E0B;
     }
 
     * {
@@ -43,38 +42,16 @@
       align-items: center;
     }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .brand-icon {
-      background: var(--accent);
-      width: 38px;
-      height: 38px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.1rem;
+    .brand h1 {
+      font-size: 1.3rem;
+      font-weight: 800;
       color: #fff;
-    }
-
-    .brand-text h1 {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: #fff;
-    }
-
-    .brand-text p {
-      font-size: 0.7rem;
-      color: var(--text-muted);
+      letter-spacing: -0.5px;
     }
 
     .btn-add {
       background: var(--accent);
-      color: #fff;
+      color: #000;
       border: none;
       padding: 7px 14px;
       border-radius: 8px;
@@ -92,7 +69,7 @@
       padding: 0 15px;
     }
 
-    /* Category Navigation Pills */
+    /* Category Pills Navigation */
     .pill-nav {
       display: flex;
       gap: 8px;
@@ -115,9 +92,9 @@
     }
 
     .pill.active {
-      background: var(--accent);
-      color: #fff;
-      border-color: var(--accent);
+      background: #fff;
+      color: #000;
+      border-color: #fff;
     }
 
     .section-title {
@@ -129,7 +106,7 @@
       align-items: center;
     }
 
-    /* Movie Grid Cards */
+    /* Movie Grid Layout */
     .movie-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -209,11 +186,11 @@
     }
 
     .card-sub .rating {
-      color: var(--star-color);
+      color: var(--accent);
       font-weight: 700;
     }
 
-    /* Detail View Screen */
+    /* Detail View Screen (PhonoFilm Style) */
     .detail-view {
       display: none;
       position: fixed;
@@ -231,7 +208,7 @@
       background: #000;
     }
 
-    .detail-hero video, .detail-hero img {
+    .detail-hero img {
       width: 100%;
       height: 100%;
       object-fit: cover;
@@ -273,7 +250,7 @@
 
     .action-row {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: 1fr 1fr;
       gap: 12px;
       margin-bottom: 25px;
     }
@@ -282,10 +259,10 @@
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       color: #fff;
-      padding: 12px;
+      padding: 14px;
       border-radius: 12px;
       font-weight: 700;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -296,7 +273,7 @@
 
     .btn-action.primary {
       background: var(--accent);
-      color: #fff;
+      color: #000;
       border: none;
     }
 
@@ -347,11 +324,7 @@
 
   <header>
     <div class="brand">
-      <div class="brand-icon"><i class="fa-solid fa-film"></i></div>
-      <div class="brand-text">
-        <h1>Aero Unity Movies</h1>
-        <p>Developer: @Mr_Mohammed_29</p>
-      </div>
+      <h1>PhonoFilm</h1>
     </div>
     <div id="adminHeaderAction"></div>
   </header>
@@ -390,16 +363,16 @@
         <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeAddModal()"></i>
       </div>
       <form onsubmit="saveMovie(event)">
-        <div class="form-group"><label>Movie Title *</label><input type="text" id="mTitle" required></div>
+        <div class="form-group"><label>Movie Title *</label><input type="text" id="mTitle" required placeholder="e.g. Resident Evil"></div>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
           <div class="form-group"><label>Year</label><input type="number" id="mYear" value="2026"></div>
-          <div class="form-group"><label>IMDb Rating</label><input type="text" id="mRating" value="8.5"></div>
+          <div class="form-group"><label>IMDb Rating</label><input type="text" id="mRating" value="7.4"></div>
         </div>
-        <div class="form-group"><label>Genres (comma separated)</label><input type="text" id="mGenre" value="Action, Sci-Fi"></div>
+        <div class="form-group"><label>Genres (comma separated)</label><input type="text" id="mGenre" value="Action, Horror, Sci-Fi"></div>
         <div class="form-group"><label>Poster Image URL</label><input type="url" id="mPoster" placeholder="https://..."></div>
         <div class="form-group"><label>Direct Stream URL *</label><input type="url" id="mStream" required placeholder="https://..."></div>
         <div class="form-group"><label>Direct Download URL *</label><input type="url" id="mDownload" required placeholder="https://..."></div>
-        <button type="submit" class="btn-action primary" style="width:100%; margin-top:10px;">SAVE ENTRY</button>
+        <button type="submit" class="btn-action primary" style="width:100%; margin-top:10px; border:none;">SAVE ENTRY</button>
       </form>
     </div>
   </div>
@@ -408,29 +381,29 @@
     const defaultMovies = [
       {
         id: 1,
+        title: "Resident Evil",
+        year: 2026,
+        genre: "Action, Horror, Sci-Fi",
+        rating: "7.4",
+        poster: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600",
+        streamUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
+        downloadUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
+        desc: "Follows a hapless courier tasked with delivering a package to a remote hospital. He soon finds himself fighting for survival."
+      },
+      {
+        id: 2,
         title: "Interstellar",
         year: 2014,
         genre: "Sci-Fi, Adventure",
-        rating: "8.7",
+        rating: "8.9",
         poster: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600",
         streamUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
         downloadUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
         desc: "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival."
-      },
-      {
-        id: 2,
-        title: "Spider-Man: Across the Spider-Verse",
-        year: 2023,
-        genre: "Animation, Action",
-        rating: "8.6",
-        poster: "https://images.unsplash.com/photo-1635805737707-575885ab0820?w=600",
-        streamUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
-        downloadUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
-        desc: "Miles Morales catapults across the Multiverse, where he encounters a team of Spider-People charged with protecting its very existence."
       }
     ];
 
-    let moviesList = JSON.parse(localStorage.getItem('aero_movies_v3')) || defaultMovies;
+    let moviesList = JSON.parse(localStorage.getItem('phonofilm_movies_v4')) || defaultMovies;
 
     function renderMovies(data) {
       const grid = document.getElementById('movieGrid');
@@ -471,7 +444,6 @@
         <div class="action-row">
           <a href="${movie.streamUrl}" target="_blank" class="btn-action primary"><i class="fa-solid fa-play"></i> Stream</a>
           <a href="${movie.downloadUrl}" target="_blank" class="btn-action"><i class="fa-solid fa-download"></i> Download</a>
-          <a href="${movie.streamUrl}" target="_blank" class="btn-action"><i class="fa-solid fa-video"></i> Trailer</a>
         </div>
       `;
 
@@ -508,13 +480,13 @@
         year: document.getElementById('mYear').value,
         rating: document.getElementById('mRating').value,
         genre: document.getElementById('mGenre').value,
-        poster: document.getElementById('mPoster').value || 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600',
+        poster: document.getElementById('mPoster').value || 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600',
         streamUrl: document.getElementById('mStream').value,
         downloadUrl: document.getElementById('mDownload').value,
-        desc: "Newly added title to Aero Unity Movies."
+        desc: "Newly added title to PhonoFilm vault."
       };
       moviesList.unshift(newMovie);
-      localStorage.setItem('aero_movies_v3', JSON.stringify(moviesList));
+      localStorage.setItem('phonofilm_movies_v4', JSON.stringify(moviesList));
       renderMovies(moviesList);
       closeAddModal();
     }
