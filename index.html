@@ -29,6 +29,13 @@
       padding-bottom: 80px;
     }
 
+    /* Subtitle Size Fix for HTML5 Video Player */
+    ::cue {
+      font-size: 0.85rem !important;
+      background: rgba(0, 0, 0, 0.7);
+      color: #fff;
+    }
+
     header {
       background: rgba(7, 9, 14, 0.9);
       backdrop-filter: blur(12px);
@@ -71,7 +78,6 @@
       color: var(--text-muted);
     }
 
-    /* Admin Add File Button - Hidden by default for regular users, unlocked via ?admin=true */
     .btn-add {
       background: var(--accent-blue);
       color: #fff;
@@ -81,7 +87,7 @@
       font-weight: 700;
       font-size: 0.8rem;
       cursor: pointer;
-      display: none; 
+      display: none; /* Unlocked only with ?admin=true */
       align-items: center;
       gap: 6px;
     }
@@ -165,6 +171,19 @@
       object-fit: cover;
     }
 
+    .genre-badge {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      background: rgba(37, 99, 235, 0.85);
+      color: white;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 3px 7px;
+      border-radius: 6px;
+      text-transform: uppercase;
+    }
+
     .card-actions {
       position: absolute;
       top: 8px;
@@ -221,7 +240,7 @@
       background: var(--bg-dark);
       z-index: 300;
       overflow-y: auto;
-      padding-bottom: 50px;
+      padding-bottom: 70px;
     }
 
     .detail-hero {
@@ -231,7 +250,7 @@
       background: #000;
     }
 
-    .detail-hero img {
+    .detail-hero video, .detail-hero img {
       width: 100%;
       height: 100%;
       object-fit: cover;
@@ -271,25 +290,34 @@
       margin-bottom: 20px;
     }
 
-    .action-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 25px;
+    .episodes-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .episode-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 12px;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
     .btn-action {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       color: #fff;
-      padding: 14px;
-      border-radius: 12px;
+      padding: 8px 14px;
+      border-radius: 8px;
       font-weight: 700;
-      font-size: 0.9rem;
-      display: flex;
+      font-size: 0.8rem;
+      display: inline-flex;
       align-items: center;
-      justify-content: center;
-      gap: 8px;
+      gap: 6px;
       cursor: pointer;
       text-decoration: none;
     }
@@ -300,7 +328,7 @@
       border: none;
     }
 
-    /* Bottom Navigation Bar */
+    /* Bottom Navigation Bar - ONLY HOME BUTTON */
     .bottom-nav {
       position: fixed;
       bottom: 0; left: 0; width: 100%;
@@ -308,8 +336,8 @@
       backdrop-filter: blur(10px);
       border-top: 1px solid var(--card-border);
       display: flex;
-      justify-content: space-around;
-      padding: 10px 0;
+      justify-content: center;
+      padding: 12px 0;
       z-index: 200;
     }
 
@@ -317,19 +345,14 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      color: var(--text-muted);
-      font-size: 0.7rem;
-      gap: 4px;
-      cursor: pointer;
-      text-decoration: none;
-    }
-
-    .nav-item.active {
       color: var(--accent);
+      font-size: 0.75rem;
+      gap: 3px;
+      cursor: pointer;
     }
 
     .nav-item i {
-      font-size: 1.1rem;
+      font-size: 1.3rem;
     }
 
     /* Modal Form for Admin Add File */
@@ -337,7 +360,7 @@
       display: none;
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.8);
+      background: rgba(0,0,0,0.85);
       z-index: 400;
       justify-content: center;
       align-items: center;
@@ -348,7 +371,9 @@
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       width: 100%;
-      max-width: 500px;
+      max-width: 520px;
+      max-height: 90vh;
+      overflow-y: auto;
       border-radius: 12px;
       padding: 20px;
     }
@@ -373,6 +398,14 @@
       color: white;
       outline: none;
     }
+
+    .ep-row {
+      background: #0B0E17;
+      border: 1px solid var(--card-border);
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
   </style>
 </head>
 <body>
@@ -385,7 +418,7 @@
         <p>CHANNEL ID: -1002722342948</p>
       </div>
     </div>
-    <!-- ADD FILE button: Hidden by default, unlocked only via ?admin=true -->
+    <!-- ADD FILE button unlocked only with ?admin=true -->
     <button class="btn-add" id="addFileBtn" onclick="openAddModal()">
       <i class="fa-solid fa-plus"></i> ADD FILE
     </button>
@@ -398,7 +431,7 @@
       <div class="pill" onclick="filterCategory('Movie', this)">Movie</div>
       <div class="pill" onclick="filterCategory('TV Show', this)">TV Show</div>
       <div class="pill" onclick="filterCategory('Anime', this)">Anime</div>
-      <div class="pill" onclick="filterCategory('Asian', this)">Asian</div>
+      <div class="pill" onclick="filterCategory('Drama', this)">Drama</div>
     </div>
 
     <!-- Search Bar -->
@@ -417,64 +450,78 @@
     <div class="detail-content" id="detailContent"></div>
   </div>
 
-  <!-- Admin Add Movie Modal with Separate Stream & Download URLs -->
+  <!-- Admin Add Movie Modal with Multiple Files Support -->
   <div class="modal" id="addModal">
     <div class="modal-content">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-        <h3>ADD MOVIE ENTRY</h3>
+        <h3>ADD MOVIE / SERIES ENTRY</h3>
         <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeAddModal()"></i>
       </div>
       <form onsubmit="saveMovie(event)">
-        <div class="form-group"><label>Movie Title *</label><input type="text" id="mTitle" required placeholder="e.g. Resident Evil"></div>
+        <div class="form-group"><label>Title *</label><input type="text" id="mTitle" required placeholder="e.g. The Remarried Empress"></div>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
           <div class="form-group"><label>Year</label><input type="number" id="mYear" value="2026"></div>
-          <div class="form-group"><label>IMDb Rating</label><input type="text" id="mRating" value="7.4"></div>
+          <div class="form-group"><label>IMDb Rating</label><input type="text" id="mRating" value="8.5"></div>
         </div>
-        <div class="form-group"><label>Genres (comma separated)</label><input type="text" id="mGenre" value="Action, Horror, Sci-Fi"></div>
+        <div class="form-group"><label>Genres (comma separated)</label><input type="text" id="mGenre" value="Drama, Fantasy, Romance"></div>
         <div class="form-group"><label>Poster Image URL</label><input type="url" id="mPoster" placeholder="https://..."></div>
-        <div class="form-group"><label>Direct Stream URL *</label><input type="url" id="mStream" required placeholder="https://..."></div>
-        <div class="form-group"><label>Direct Download URL *</label><input type="url" id="mDownload" required placeholder="https://..."></div>
-        <button type="submit" class="btn-action primary" style="width:100%; margin-top:10px; border:none;">SAVE ENTRY</button>
+        
+        <div style="margin: 15px 0 10px 0; font-weight:700; font-size:0.9rem; display:flex; justify-content:space-between; align-items:center;">
+          <span>EPISODES / MULTIPLE FILES</span>
+          <button type="button" class="btn-action primary" onclick="addEpisodeRow()" style="padding:4px 10px; font-size:0.75rem;">+ Add File</button>
+        </div>
+        
+        <div id="episodesContainer">
+          <div class="ep-row">
+            <input type="text" placeholder="Episode / File Name (e.g. Episode 1)" class="ep-name" style="width:100%; padding:6px; margin-bottom:6px; background:#000; border:1px solid #1E2538; color:#fff;" required>
+            <input type="url" placeholder="Direct Stream URL" class="ep-stream" style="width:100%; padding:6px; margin-bottom:6px; background:#000; border:1px solid #1E2538; color:#fff;" required>
+            <input type="url" placeholder="Direct Download URL" class="ep-download" style="width:100%; padding:6px; background:#000; border:1px solid #1E2538; color:#fff;" required>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-action primary" style="width:100%; margin-top:15px; border:none; padding:12px;">SAVE ENTRY</button>
       </form>
     </div>
   </div>
 
-  <!-- Bottom Navigation Bar (Visible to all users with Home button) -->
+  <!-- Bottom Navigation Bar - ONLY HOME BUTTON -->
   <div class="bottom-nav">
-    <div class="nav-item active" onclick="goHome()"><i class="fa-solid fa-house"></i><span>Home</span></div>
-    <div class="nav-item" onclick="document.getElementById('searchInput').focus()"><i class="fa-solid fa-compass"></i><span>Browse</span></div>
-    <div class="nav-item"><i class="fa-solid fa-circle-nodes"></i><span>Circles</span></div>
-    <div class="nav-item"><i class="fa-solid fa-layer-group"></i><span>Collections</span></div>
-    <div class="nav-item"><i class="fa-solid fa-user"></i><span>Me</span></div>
+    <div class="nav-item" onclick="goHome()">
+      <i class="fa-solid fa-house"></i>
+      <span>Home</span>
+    </div>
   </div>
 
   <script>
     const defaultMovies = [
       {
         id: 1,
+        title: "The Remarried Empress",
+        year: 2026,
+        genre: "Drama, Fantasy, Romance",
+        rating: "8.5",
+        poster: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600",
+        files: [
+          { name: "Episode 1", streamUrl: "https://www.w3schools.com/html/mov_bbb.mp4", downloadUrl: "https://www.w3schools.com/html/mov_bbb.mp4" },
+          { name: "Episode 2", streamUrl: "https://www.w3schools.com/html/mov_bbb.mp4", downloadUrl: "https://www.w3schools.com/html/mov_bbb.mp4" }
+        ],
+        desc: "An empress chooses to remarry after her husband demands a divorce to stay with his mistress."
+      },
+      {
+        id: 2,
         title: "Resident Evil",
         year: 2026,
         genre: "Action, Horror, Sci-Fi",
         rating: "7.4",
-        poster: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600",
-        streamUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
-        downloadUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
-        desc: "Follows a hapless courier tasked with delivering a package to a remote hospital. He soon finds himself fighting for survival."
-      },
-      {
-        id: 2,
-        title: "Interstellar",
-        year: 2014,
-        genre: "Sci-Fi, Adventure",
-        rating: "8.9",
         poster: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600",
-        streamUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
-        downloadUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
-        desc: "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival."
+        files: [
+          { name: "Full Movie (1080p)", streamUrl: "https://www.w3schools.com/html/mov_bbb.mp4", downloadUrl: "https://www.w3schools.com/html/mov_bbb.mp4" }
+        ],
+        desc: "Follows a courier tasked with delivering a package to a remote hospital amidst a outbreak."
       }
     ];
 
-    let moviesList = JSON.parse(localStorage.getItem('aero_unity_movies_v8')) || defaultMovies;
+    let moviesList = JSON.parse(localStorage.getItem('aero_unity_movies_v9')) || defaultMovies;
     let currentCategory = 'All';
 
     function renderMovies(data) {
@@ -485,13 +532,14 @@
         return;
       }
       data.forEach(movie => {
+        const primaryGenre = movie.genre ? movie.genre.split(',')[0].trim() : 'Media';
         grid.innerHTML += `
           <div class="movie-card" onclick="openDetail(${movie.id})">
             <div class="poster-box">
               <img src="${movie.poster}" alt="${movie.title}">
+              <span class="genre-badge">${primaryGenre}</span>
               <div class="card-actions">
                 <div class="action-icon-btn"><i class="fa-solid fa-play"></i></div>
-                <div class="action-icon-btn"><i class="fa-solid fa-bookmark"></i></div>
                 <div class="action-icon-btn"><i class="fa-solid fa-download"></i></div>
               </div>
             </div>
@@ -511,16 +559,33 @@
       const movie = moviesList.find(m => m.id === id);
       if(!movie) return;
 
-      document.getElementById('detailHero').innerHTML = `<img src="${movie.poster}" alt="${movie.title}">`;
+      const firstStream = movie.files && movie.files.length > 0 ? movie.files[0].streamUrl : '';
+      
+      document.getElementById('detailHero').innerHTML = firstStream ? 
+        `<video controls autoplay poster="${movie.poster}"><source src="${firstStream}" type="video/mp4"></video>` : 
+        `<img src="${movie.poster}" alt="${movie.title}">`;
+
+      let episodesHtml = '';
+      if(movie.files && movie.files.length > 0) {
+        movie.files.forEach(file => {
+          episodesHtml += `
+            <div class="episode-card">
+              <span><strong>${file.name}</strong></span>
+              <div style="display:flex; gap:8px;">
+                <a href="${file.streamUrl}" target="_blank" class="btn-action primary"><i class="fa-solid fa-play"></i> Stream</a>
+                <a href="${file.downloadUrl}" target="_blank" class="btn-action"><i class="fa-solid fa-download"></i> Download</a>
+              </div>
+            </div>
+          `;
+        });
+      }
+
       document.getElementById('detailContent').innerHTML = `
         <div class="detail-title">${movie.title}</div>
         <div style="font-size:0.85rem; color:var(--accent); margin-bottom:10px;">⭐ ${movie.rating} / 10 &nbsp;•&nbsp; ${movie.year} &nbsp;•&nbsp; ${movie.genre}</div>
         <div class="detail-desc">${movie.desc || 'No description available for this title.'}</div>
-        
-        <div class="action-row">
-          <a href="${movie.streamUrl}" target="_blank" class="btn-action primary"><i class="fa-solid fa-play"></i> Stream</a>
-          <a href="${movie.downloadUrl}" target="_blank" class="btn-action"><i class="fa-solid fa-download"></i> Download</a>
-        </div>
+        <h4 style="margin-bottom:10px;">Available Files / Episodes:</h4>
+        <div class="episodes-list">${episodesHtml}</div>
       `;
 
       document.getElementById('homeView').style.display = 'none';
@@ -549,13 +614,12 @@
       const q = document.getElementById('searchInput').value.toLowerCase();
       const filtered = moviesList.filter(m => {
         const matchesQuery = m.title.toLowerCase().includes(q) || m.genre.toLowerCase().includes(q);
-        const matchesCat = currentCategory === 'All' || m.genre.includes(currentCategory) || (currentCategory === 'Movie' && !m.genre.includes('TV'));
+        const matchesCat = currentCategory === 'All' || m.genre.toLowerCase().includes(currentCategory.toLowerCase());
         return matchesQuery && matchesCat;
       });
       renderMovies(filtered);
     }
 
-    // Owner-only check: Reveals the ADD FILE button only when ?admin=true is appended to the URL
     function checkAdmin() {
       const params = new URLSearchParams(window.location.search);
       if (params.get('admin') === 'true') {
@@ -566,8 +630,30 @@
     function openAddModal() { document.getElementById('addModal').style.display = 'flex'; }
     function closeAddModal() { document.getElementById('addModal').style.display = 'none'; }
 
+    function addEpisodeRow() {
+      const container = document.getElementById('episodesContainer');
+      const row = document.createElement('div');
+      row.className = 'ep-row';
+      row.innerHTML = `
+        <input type="text" placeholder="Episode / File Name" class="ep-name" style="width:100%; padding:6px; margin-bottom:6px; background:#000; border:1px solid #1E2538; color:#fff;" required>
+        <input type="url" placeholder="Direct Stream URL" class="ep-stream" style="width:100%; padding:6px; margin-bottom:6px; background:#000; border:1px solid #1E2538; color:#fff;" required>
+        <input type="url" placeholder="Direct Download URL" class="ep-download" style="width:100%; padding:6px; background:#000; border:1px solid #1E2538; color:#fff;" required>
+      `;
+      container.appendChild(row);
+    }
+
     function saveMovie(e) {
       e.preventDefault();
+      const epRows = document.querySelectorAll('.ep-row');
+      const files = [];
+      epRows.forEach(row => {
+        files.push({
+          name: row.querySelector('.ep-name').value,
+          streamUrl: row.querySelector('.ep-stream').value,
+          downloadUrl: row.querySelector('.ep-download').value
+        });
+      });
+
       const newMovie = {
         id: Date.now(),
         title: document.getElementById('mTitle').value,
@@ -575,12 +661,12 @@
         rating: document.getElementById('mRating').value,
         genre: document.getElementById('mGenre').value,
         poster: document.getElementById('mPoster').value || 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600',
-        streamUrl: document.getElementById('mStream').value,
-        downloadUrl: document.getElementById('mDownload').value,
+        files: files,
         desc: "Newly added title to Aero Unity Movies vault."
       };
+
       moviesList.unshift(newMovie);
-      localStorage.setItem('aero_unity_movies_v8', JSON.stringify(moviesList));
+      localStorage.setItem('aero_unity_movies_v9', JSON.stringify(moviesList));
       filterMovies();
       closeAddModal();
     }
