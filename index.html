@@ -3,17 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PhonoFilm - Discover Movies & TV Shows</title>
+  <title>Aero Unity Movies</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
       --bg-dark: #07090E;
       --card-bg: #111520;
       --card-border: #1E2538;
-      --accent: #E5A93B;
-      --accent-hover: #D4982A;
+      --accent: #2563EB;
+      --accent-hover: #1D4ED8;
       --text-main: #F3F4F6;
       --text-muted: #9CA3AF;
+      --star-color: #F59E0B;
     }
 
     * {
@@ -48,16 +49,32 @@
       gap: 12px;
     }
 
-    .brand-text h1 {
-      font-size: 1.3rem;
-      font-weight: 800;
+    .brand-icon {
+      background: var(--accent);
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
       color: #fff;
-      letter-spacing: -0.5px;
+    }
+
+    .brand-text h1 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .brand-text p {
+      font-size: 0.7rem;
+      color: var(--text-muted);
     }
 
     .btn-add {
       background: var(--accent);
-      color: #000;
+      color: #fff;
       border: none;
       padding: 7px 14px;
       border-radius: 8px;
@@ -98,9 +115,9 @@
     }
 
     .pill.active {
-      background: #fff;
-      color: #000;
-      border-color: #fff;
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
     }
 
     .section-title {
@@ -112,7 +129,7 @@
       align-items: center;
     }
 
-    /* Movie Grid Cards matching PhonoFilm */
+    /* Movie Grid Cards */
     .movie-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -192,11 +209,11 @@
     }
 
     .card-sub .rating {
-      color: var(--accent);
+      color: var(--star-color);
       font-weight: 700;
     }
 
-    /* Detail View Screen (PhonoFilm style) */
+    /* Detail View Screen */
     .detail-view {
       display: none;
       position: fixed;
@@ -279,7 +296,7 @@
 
     .btn-action.primary {
       background: var(--accent);
-      color: #000;
+      color: #fff;
       border: none;
     }
 
@@ -330,7 +347,11 @@
 
   <header>
     <div class="brand">
-      <div class="brand-text"><h1>PhonoFilm</h1></div>
+      <div class="brand-icon"><i class="fa-solid fa-film"></i></div>
+      <div class="brand-text">
+        <h1>Aero Unity Movies</h1>
+        <p>Developer: @Mr_Mohammed_29</p>
+      </div>
     </div>
     <div id="adminHeaderAction"></div>
   </header>
@@ -409,7 +430,7 @@
       }
     ];
 
-    let moviesList = JSON.parse(localStorage.getItem('phonofilm_movies')) || defaultMovies;
+    let moviesList = JSON.parse(localStorage.getItem('aero_movies_v3')) || defaultMovies;
 
     function renderMovies(data) {
       const grid = document.getElementById('movieGrid');
@@ -490,10 +511,10 @@
         poster: document.getElementById('mPoster').value || 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600',
         streamUrl: document.getElementById('mStream').value,
         downloadUrl: document.getElementById('mDownload').value,
-        desc: "Newly added title to PhonoFilm vault."
+        desc: "Newly added title to Aero Unity Movies."
       };
       moviesList.unshift(newMovie);
-      localStorage.setItem('phonofilm_movies', JSON.stringify(moviesList));
+      localStorage.setItem('aero_movies_v3', JSON.stringify(moviesList));
       renderMovies(moviesList);
       closeAddModal();
     }
