@@ -434,7 +434,6 @@
       align-items: center;
       gap: 6px;
       cursor: pointer;
-      text-decoration: none;
     }
 
     .detail-desc {
@@ -1015,7 +1014,7 @@
       }
     ];
 
-    let moviesList = JSON.parse(localStorage.getItem('aero_unity_movies_v16')) || defaultMovies;
+    let moviesList = JSON.parse(localStorage.getItem('aero_unity_movies_v18')) || defaultMovies;
     let currentCategory = 'All';
 
     function switchMainTab(tab) {
@@ -1073,7 +1072,7 @@
       });
     }
 
-    // Official TMDb / IMDb Auto-fetch integration
+    // Official TMDb / IMDb Auto-fetch integration ensuring accurate studios, actors, and directors loading
     async function fetchTMDbData() {
       const query = document.getElementById('mTitle').value.trim();
       if(!query) {
@@ -1104,11 +1103,12 @@
             document.getElementById('mGenre').value = mappedGenres.join(', ');
           }
 
-          // Fetch credits & Studios from official TMDb API
+          // Fetch official studios and production networks
           const detailRes = await fetch(`https://api.themoviedb.org/3/${item.media_type || 'movie'}/${item.id}?api_key=1865f43a0549ca50d82349d42c3c136b`);
           const detailData = await detailRes.json();
           window.fetchedStudios = [];
-          if(detailData.production_companies) {
+          
+          if(detailData.production_companies && detailData.production_companies.length > 0) {
             detailData.production_companies.slice(0, 3).forEach(comp => {
               window.fetchedStudios.push({
                 name: comp.name,
@@ -1116,12 +1116,22 @@
               });
             });
           }
+          if(detailData.networks && detailData.networks.length > 0) {
+            detailData.networks.slice(0, 2).forEach(net => {
+              window.fetchedStudios.push({
+                name: net.name,
+                logo: net.logo_path ? `https://image.tmdb.org/t/p/w185${net.logo_path}` : 'https://images.unsplash.com/photo-1622979135225-d2ba269bc1df?w=100'
+              });
+            });
+          }
 
+          // Fetch official actors and directors from credits endpoint
           const creditsRes = await fetch(`https://api.themoviedb.org/3/${item.media_type || 'movie'}/${item.id}/credits?api_key=1865f43a0549ca50d82349d42c3c136b`);
           const creditsData = await creditsRes.json();
           window.fetchedCast = [];
+          
           if(creditsData.cast) {
-            creditsData.cast.slice(0, 5).forEach(c => {
+            creditsData.cast.slice(0, 6).forEach(c => {
               window.fetchedCast.push({
                 name: c.name,
                 role: c.character || 'Actor',
@@ -1129,8 +1139,9 @@
               });
             });
           }
+          
           if(creditsData.crew) {
-            const director = creditsData.crew.find(cr => cr.job === 'Director' || cr.job === 'Creator' || cr.job === 'Executive Producer');
+            const director = creditsData.crew.find(cr => cr.job === 'Director' || cr.job === 'Creator' || cr.job === 'Executive Producer' || cr.job === 'Series Director');
             if(director) {
               window.fetchedCast.push({
                 name: director.name,
@@ -1140,7 +1151,7 @@
             }
           }
 
-          alert("Official IMDb / TMDb metadata, cast, director, and studios successfully detected and loaded!");
+          alert("Official TMDb & IMDb metadata including studio, actors, and directors fetched successfully!");
         } else {
           alert("No official records found on TMDb. You can enter details manually.");
         }
@@ -1213,8 +1224,9 @@
       const totalDownloads = movie.downloads || 1400;
 
       document.getElementById('detailContent').innerHTML = `
-        <div class="detail-poster-card">
+        <div class="detail-poster-card" onclick="${isAdmin ? `openAddModalForMovie('${movie.title.replace(/'/g, "\\'")}')` : ''}" style="${isAdmin ? 'cursor:pointer; position:relative;' : ''}">
           <img src="${movie.poster}" alt="${movie.title}">
+          ${isAdmin ? `<div style="position:absolute; bottom:0; left:0; width:100%; background:rgba(37,99,235,0.9); color:#fff; font-size:0.7rem; font-weight:700; text-align:center; padding:4px;"><i class="fa-solid fa-plus"></i> Add File</div>` : ''}
         </div>
 
         <div class="detail-title">${movie.title} (${movie.year})</div>
@@ -1329,7 +1341,7 @@
       const movie = moviesList.find(m => m.id === movieId);
       if (movie) {
         movie.downloads = (movie.downloads || 1400) + 1;
-        localStorage.setItem('aero_unity_movies_v16', JSON.stringify(moviesList));
+        localStorage.setItem('aero_unity_movies_v18', JSON.stringify(moviesList));
         document.getElementById('totalDownloadsDisplay').innerText = movie.downloads;
         document.getElementById('monthDownloadsDisplay').innerText = movie.downloads;
         document.getElementById('weekDownloadsDisplay').innerText = movie.downloads;
@@ -1349,7 +1361,7 @@
         movie.userRatingsSum += starValueToTen;
         movie.rating = parseFloat((movie.userRatingsSum / movie.ratingCount).toFixed(1));
 
-        localStorage.setItem('aero_unity_movies_v16', JSON.stringify(moviesList));
+        localStorage.setItem('aero_unity_movies_v18', JSON.stringify(moviesList));
 
         const starsElements = document.querySelectorAll('#starContainer i');
         starsElements.forEach((s, idx) => {
@@ -1467,7 +1479,7 @@
         moviesList.unshift(newMovie);
       }
 
-      localStorage.setItem('aero_unity_movies_v16', JSON.stringify(moviesList));
+      localStorage.setItem('aero_unity_movies_v18', JSON.stringify(moviesList));
       filterMovies();
       closeAddModal();
       
@@ -1487,7 +1499,7 @@
         } else {
           openDetail(movieId);
         }
-        localStorage.setItem('aero_unity_movies_v16', JSON.stringify(moviesList));
+        localStorage.setItem('aero_unity_movies_v18', JSON.stringify(moviesList));
         filterMovies();
       }
     }
@@ -1495,7 +1507,7 @@
     function deleteEntireMovie(movieId) {
       if(!confirm("Are you sure you want to delete this entire movie and all its files?")) return;
       moviesList = moviesList.filter(m => m.id !== movieId);
-      localStorage.setItem('aero_unity_movies_v16', JSON.stringify(moviesList));
+      localStorage.setItem('aero_unity_movies_v18', JSON.stringify(moviesList));
       closeDetail();
       filterMovies();
     }
