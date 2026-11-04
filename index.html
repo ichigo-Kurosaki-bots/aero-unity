@@ -983,7 +983,9 @@
   </div>
 
   <script>
-    // Global cached cast & studios when fetched or auto-resolved
+    // Storage version key updated to v21 to ensure clean state initialization with persistent storage
+    const STORAGE_KEY = 'aero_unity_movies_v21';
+
     window.fetchedCast = [];
     window.fetchedStudios = [];
 
@@ -1020,7 +1022,7 @@
       }
     ];
 
-    let moviesList = JSON.parse(localStorage.getItem('aero_unity_movies_v20')) || defaultMovies;
+    let moviesList = JSON.parse(localStorage.getItem(STORAGE_KEY)) || defaultMovies;
     let currentCategory = 'All';
 
     function switchMainTab(tab) {
@@ -1078,9 +1080,18 @@
       });
     }
 
-    // Helper function to auto-fetch credits and studios for any given TMDb ID and media type
-    async function fetchCastAndStudiosForMedia(tmdbId, mediaType) {
+    // Comprehensive helper to fetch cast, director, and studios for any given TMDb title/ID
+    async function fetchCastAndStudiosByName(title) {
       try {
+        const searchRes = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=1865f43a0549ca50d82349d42c3c136b&query=${encodeURIComponent(title)}`);
+        const searchData = await searchRes.json();
+        if(!searchData.results || searchData.results.length === 0) return { cast: [], studios: [] };
+
+        const item = searchData.results[0];
+        const mediaType = item.media_type || (item.first_air_date ? 'tv' : 'movie');
+        const tmdbId = item.id;
+
+        // Fetch production companies & networks
         const detailRes = await fetch(`https://api.themoviedb.org/3/${mediaType}/${tmdbId}?api_key=1865f43a0549ca50d82349d42c3c136b`);
         const detailData = await detailRes.json();
         let studios = [];
@@ -1102,6 +1113,7 @@
           });
         }
 
+        // Fetch cast & crew (directors)
         const creditsRes = await fetch(`https://api.themoviedb.org/3/${mediaType}/${tmdbId}/credits?api_key=1865f43a0549ca50d82349d42c3c136b`);
         const creditsData = await creditsRes.json();
         let cast = [];
@@ -1129,12 +1141,12 @@
 
         return { cast, studios };
       } catch(e) {
-        console.error("Error fetching cast/studios:", e);
+        console.error("API Fetch Error:", e);
         return { cast: [], studios: [] };
       }
     }
 
-    // Official TMDb & IMDb API search function to fetch real-time Actors, Directors, and Studios
+    // Official TMDb & IMDb API search function to fetch real-time metadata when clicking "Fetch" in the modal
     async function fetchTMDbData() {
       const query = document.getElementById('mTitle').value.trim();
       if(!query) {
@@ -1168,7 +1180,7 @@
             document.getElementById('mGenre').value = mappedGenres.join(', ');
           }
 
-          const extraData = await fetchCastAndStudiosForMedia(item.id, mediaType);
+          const extraData = await fetchCastAndStudiosByName(item.title || item.name);
           window.fetchedCast = extraData.cast;
           window.fetchedStudios = extraData.studios;
 
@@ -1186,22 +1198,12 @@
       const movie = moviesList.find(m => m.id === id);
       if(!movie) return;
 
-      // Fallback auto-fetch if existing entry lacks cast or studios
-      if((!movie.cast || movie.cast.length === 0 || !movie.studios || movie.studios.length === 0)) {
-        try {
-          const res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=1865f43a0549ca50d82349d42c3c136b&query=${encodeURIComponent(movie.title)}`);
-          const data = await res.json();
-          if(data.results && data.results.length > 0) {
-            const item = data.results[0];
-            const mediaType = item.media_type || (item.first_air_date ? 'tv' : 'movie');
-            const extraData = await fetchCastAndStudiosForMedia(item.id, mediaType);
-            if(!movie.cast || movie.cast.length === 0) movie.cast = extraData.cast;
-            if(!movie.studios || movie.studios.length === 0) movie.studios = extraData.studios;
-            localStorage.setItem('aero_unity_movies_v20', JSON.stringify(moviesList));
-          }
-        } catch(e) {
-          console.error("Auto-recovery error:", e);
-        }
+      // Auto-fetch cast & studios if missing on click to ensure actors and studios always show up
+      if(!movie.cast || movie.cast.length === 0 || !movie.studios || movie.studios.length === 0) {
+        const extraData = await fetchCastAndStudiosByName(movie.title);
+        if(!movie.cast || movie.cast.length === 0) movie.cast = extraData.cast;
+        if(!movie.studios || movie.studios.length === 0) movie.studios = extraData.studios;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(moviesList));
       }
 
       let isAdmin = new URLSearchParams(window.location.search).get('admin') === 'true';
@@ -1382,7 +1384,7 @@
       const movie = moviesList.find(m => m.id === movieId);
       if (movie) {
         movie.downloads = (movie.downloads || 2450) + 1;
-        localStorage.setItem('aero_unity_movies_v20', JSON.stringify(moviesList));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(moviesList));
         document.getElementById('totalDownloadsDisplay').innerText = movie.downloads;
         document.getElementById('monthDownloadsDisplay').innerText = movie.downloads;
         document.getElementById('weekDownloadsDisplay').innerText = movie.downloads;
@@ -1402,7 +1404,7 @@
         movie.userRatingsSum += starValueToTen;
         movie.rating = parseFloat((movie.userRatingsSum / movie.ratingCount).toFixed(1));
 
-        localStorage.setItem('aero_unity_movies_v20', JSON.stringify(moviesList));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(moviesList));
 
         const starsElements = document.querySelectorAll('#starContainer i');
         starsElements.forEach((s, idx) => {
@@ -1495,32 +1497,22 @@
       });
 
       const titleInput = document.getElementById('mTitle').value.trim();
-      const existingMovie = moviesList.find(m => m.title.toLowerCase() === titleInput.toLowerCase());
+      let existingMovie = moviesList.find(m => m.title.toLowerCase() === titleInput.toLowerCase());
 
-      // If user hasn't fetched or window.fetchedCast is empty, let's auto-fetch on save right now
-      if((!window.fetchedCast || window.fetchedCast.length === 0) && (!existingMovie || !existingMovie.cast || existingMovie.cast.length === 0)) {
-        try {
-          const res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=1865f43a0549ca50d82349d42c3c136b&query=${encodeURIComponent(titleInput)}`);
-          const data = await res.json();
-          if(data.results && data.results.length > 0) {
-            const item = data.results[0];
-            const mediaType = item.media_type || (item.first_air_date ? 'tv' : 'movie');
-            const extraData = await fetchCastAndStudiosForMedia(item.id, mediaType);
-            window.fetchedCast = extraData.cast;
-            window.fetchedStudios = extraData.studios;
-          }
-        } catch(err) {
-          console.error("Auto fetch on save error:", err);
-        }
+      // If actor/studio buffer is empty, auto-fetch based on title on save
+      if((!window.fetchedCast || window.fetchedCast.length === 0)) {
+        const extraData = await fetchCastAndStudiosByName(titleInput);
+        window.fetchedCast = extraData.cast;
+        window.fetchedStudios = extraData.studios;
       }
 
       if (existingMovie) {
         existingMovie.files.push(...files);
-        if((!existingMovie.cast || existingMovie.cast.length === 0) && window.fetchedCast && window.fetchedCast.length > 0) {
-          existingMovie.cast = window.fetchedCast;
+        if(!existingMovie.cast || existingMovie.cast.length === 0) {
+          existingMovie.cast = window.fetchedCast || [];
         }
-        if((!existingMovie.studios || existingMovie.studios.length === 0) && window.fetchedStudios && window.fetchedStudios.length > 0) {
-          existingMovie.studios = window.fetchedStudios;
+        if(!existingMovie.studios || existingMovie.studios.length === 0) {
+          existingMovie.studios = window.fetchedStudios || [];
         }
       } else {
         const newMovie = {
@@ -1541,19 +1533,17 @@
           files: files
         };
         moviesList.unshift(newMovie);
+        existingMovie = newMovie;
       }
 
-      localStorage.setItem('aero_unity_movies_v20', JSON.stringify(moviesList));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(moviesList));
       filterMovies();
       closeAddModal();
       
-      // Reset temporary fetched buffers
       window.fetchedCast = [];
       window.fetchedStudios = [];
 
-      if (existingMovie) {
-        openDetail(existingMovie.id);
-      }
+      openDetail(existingMovie.id);
     }
 
     function deleteFile(movieId, fileIndex) {
@@ -1567,7 +1557,7 @@
         } else {
           openDetail(movieId);
         }
-        localStorage.setItem('aero_unity_movies_v20', JSON.stringify(moviesList));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(moviesList));
         filterMovies();
       }
     }
@@ -1575,7 +1565,7 @@
     function deleteEntireMovie(movieId) {
       if(!confirm("Are you sure you want to delete this entire movie and all its files?")) return;
       moviesList = moviesList.filter(m => m.id !== movieId);
-      localStorage.initItem ? null : localStorage.setItem('aero_unity_movies_v20', JSON.stringify(moviesList));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(moviesList));
       closeDetail();
       filterMovies();
     }
