@@ -979,8 +979,7 @@
 
   <div class="bottom-nav">
     <div class="nav-item" onclick="goHome()">
-      <i class="fa-solid fa-house"></i>
-      <span>Home</span>
+      <i class="fa-solid fa-house"><span>Home</span></i>
     </div>
   </div>
 
@@ -992,8 +991,8 @@
         year: 2026,
         genre: "Drama, Romance",
         rating: 8.2,
-        ratingCount: 2821,
-        userRatingsSum: 23120,
+        ratingCount: 2824,
+        userRatingsSum: 23160,
         language: "Korean",
         type: "Drama",
         poster: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600",
@@ -1016,7 +1015,7 @@
       }
     ];
 
-    let moviesList = JSON.parse(localStorage.getItem('aero_unity_movies_v15')) || defaultMovies;
+    let moviesList = JSON.parse(localStorage.getItem('aero_unity_movies_v16')) || defaultMovies;
     let currentCategory = 'All';
 
     function switchMainTab(tab) {
@@ -1105,7 +1104,7 @@
             document.getElementById('mGenre').value = mappedGenres.join(', ');
           }
 
-          // Fetch credits & Studios
+          // Fetch credits & Studios from official TMDb API
           const detailRes = await fetch(`https://api.themoviedb.org/3/${item.media_type || 'movie'}/${item.id}?api_key=1865f43a0549ca50d82349d42c3c136b`);
           const detailData = await detailRes.json();
           window.fetchedStudios = [];
@@ -1122,7 +1121,7 @@
           const creditsData = await creditsRes.json();
           window.fetchedCast = [];
           if(creditsData.cast) {
-            creditsData.cast.slice(0, 6).forEach(c => {
+            creditsData.cast.slice(0, 5).forEach(c => {
               window.fetchedCast.push({
                 name: c.name,
                 role: c.character || 'Actor',
@@ -1141,7 +1140,7 @@
             }
           }
 
-          alert("Official IMDb / TMDb metadata, cast, and studios successfully detected and loaded!");
+          alert("Official IMDb / TMDb metadata, cast, director, and studios successfully detected and loaded!");
         } else {
           alert("No official records found on TMDb. You can enter details manually.");
         }
@@ -1210,7 +1209,7 @@
       }
 
       const currentRatingDisplay = typeof movie.rating === 'number' ? movie.rating.toFixed(1) : movie.rating;
-      const totalVotes = movie.ratingCount || 2821;
+      const totalVotes = movie.ratingCount || 2824;
       const totalDownloads = movie.downloads || 1400;
 
       document.getElementById('detailContent').innerHTML = `
@@ -1330,7 +1329,7 @@
       const movie = moviesList.find(m => m.id === movieId);
       if (movie) {
         movie.downloads = (movie.downloads || 1400) + 1;
-        localStorage.setItem('aero_unity_movies_v15', JSON.stringify(moviesList));
+        localStorage.setItem('aero_unity_movies_v16', JSON.stringify(moviesList));
         document.getElementById('totalDownloadsDisplay').innerText = movie.downloads;
         document.getElementById('monthDownloadsDisplay').innerText = movie.downloads;
         document.getElementById('weekDownloadsDisplay').innerText = movie.downloads;
@@ -1341,20 +1340,17 @@
     function rateMovie(movieId, stars) {
       const movie = moviesList.find(m => m.id === movieId);
       if (movie) {
-        // Convert 5 stars to a 10-point scale equivalent or adjust score
         const starValueToTen = stars * 2; 
-        movie.ratingCount = (movie.ratingCount || 2821) + 1;
+        movie.ratingCount = (movie.ratingCount || 2824) + 1;
         
-        // Accumulate rating sum
         if (!movie.userRatingsSum) {
           movie.userRatingsSum = parseFloat(movie.rating || 8.0) * (movie.ratingCount - 1);
         }
         movie.userRatingsSum += starValueToTen;
         movie.rating = parseFloat((movie.userRatingsSum / movie.ratingCount).toFixed(1));
 
-        localStorage.setItem('aero_unity_movies_v15', JSON.stringify(moviesList));
+        localStorage.setItem('aero_unity_movies_v16', JSON.stringify(moviesList));
 
-        // Highlight stars up to clicked value
         const starsElements = document.querySelectorAll('#starContainer i');
         starsElements.forEach((s, idx) => {
           if (idx < stars) {
@@ -1364,7 +1360,6 @@
           }
         });
 
-        // Update UI dynamically
         document.getElementById('imdbScoreDisplay').innerHTML = `${movie.rating.toFixed(1)} <span style="font-size:0.8rem; font-weight:400; color:var(--text-muted);">/10</span>`;
         document.getElementById('imdbVotesDisplay').innerText = `${movie.ratingCount} votes`;
         
@@ -1457,7 +1452,7 @@
           title: titleInput,
           year: document.getElementById('mYear').value,
           rating: parseFloat(document.getElementById('mRating').value) || 8.0,
-          ratingCount: 2821,
+          ratingCount: 2824,
           language: document.getElementById('mLang').value,
           type: document.getElementById('mType').value,
           genre: document.getElementById('mGenre').value,
@@ -1472,7 +1467,7 @@
         moviesList.unshift(newMovie);
       }
 
-      localStorage.setItem('aero_unity_movies_v15', JSON.stringify(moviesList));
+      localStorage.setItem('aero_unity_movies_v16', JSON.stringify(moviesList));
       filterMovies();
       closeAddModal();
       
@@ -1492,7 +1487,7 @@
         } else {
           openDetail(movieId);
         }
-        localStorage.setItem('aero_unity_movies_v15', JSON.stringify(moviesList));
+        localStorage.setItem('aero_unity_movies_v16', JSON.stringify(moviesList));
         filterMovies();
       }
     }
@@ -1500,7 +1495,7 @@
     function deleteEntireMovie(movieId) {
       if(!confirm("Are you sure you want to delete this entire movie and all its files?")) return;
       moviesList = moviesList.filter(m => m.id !== movieId);
-      localStorage.setItem('aero_unity_movies_v15', JSON.stringify(moviesList));
+      localStorage.setItem('aero_unity_movies_v16', JSON.stringify(moviesList));
       closeDetail();
       filterMovies();
     }
