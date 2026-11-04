@@ -457,7 +457,7 @@
         <h1>Aero Unity Movies</h1>
       </div>
     </div>
-    <!-- ADD FILE button unlocked only with ?admin=true -->
+    <!-- ADD FILE button unlocked only with ?admin=true, positioned on right side -->
     <button class="btn-add" id="addFileBtn" onclick="openAddModal()">
       <i class="fa-solid fa-plus"></i> ADD FILE
     </button>
@@ -643,7 +643,7 @@
         <div class="detail-desc">${movie.desc || 'This File Is Added By @Aero_Unity.'}</div>
         ${isAdmin ? `<button class="btn-delete" onclick="deleteEntireMovie(${movie.id})" style="margin-bottom:15px; width:100%; justify-content:center; padding:10px;"><i class="fa-solid fa-trash"></i> Delete Entire Movie Entry</button>` : ''}
         
-        <!-- Stream Engine Button linking to Updates Channel @Aero_Unity -->
+        <!-- Fixed Updates Channel Button pointing to @Aero_Unity -->
         <div style="margin-bottom: 15px;">
           <a href="https://t.me/Aero_Unity" target="_blank" class="btn-action" style="width:100%; justify-content:center; background:#1E2538;"><i class="fa-brands fa-telegram"></i> Updates Channel</a>
         </div>
