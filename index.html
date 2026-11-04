@@ -26,7 +26,7 @@
     body {
       background-color: var(--bg-dark);
       color: var(--text-main);
-      padding-bottom: 80px;
+      padding-bottom: 90px;
     }
 
     /* Subtitle Size Fix for HTML5 Video Player */
@@ -298,8 +298,19 @@
       padding: 12px;
       border-radius: 10px;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .ep-info {
+      font-size: 0.85rem;
+      word-break: break-word;
+      line-height: 1.4;
+    }
+
+    .ep-actions {
+      display: flex;
+      gap: 8px;
     }
 
     .btn-action {
@@ -321,6 +332,22 @@
       background: var(--accent-blue);
       color: #fff;
       border: none;
+    }
+
+    .btn-delete {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #ef4444;
+      padding: 6px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-delete:hover {
+      background: rgba(239, 68, 68, 0.4);
     }
 
     /* Bottom Navigation Bar - ONLY HOME BUTTON */
@@ -419,7 +446,6 @@
     .site-footer a:hover {
       text-decoration: underline;
     }
-
   </style>
 </head>
 <body>
@@ -436,13 +462,6 @@
       <i class="fa-solid fa-plus"></i> ADD FILE
     </button>
   </header>
-
-  <div class="site-footer">
-    All rights are reserved 2026 by Mohammed.<br>
-    Made by Mohammed<br>
-    Contact: Telegram <a href="https://t.me/Mr_Mohammed_29" target="_blank">@Mr_Mohammed_29</a><br>
-    Updates Channel <a href="https://t.me/Aero_Unity" target="_blank">@Aero_Unity</a>
-  </div>
 
   <div class="container" id="homeView">
     <!-- Category Navigation Pills -->
@@ -469,7 +488,8 @@
     <div class="detail-hero" id="detailHero"></div>
     <div class="detail-content" id="detailContent"></div>
   </div>
-  
+
+  <!-- Footer at the bottom -->
   <div class="site-footer">
     All rights are reserved 2026 by Mohammed.<br>
     Made by Mohammed<br>
@@ -500,7 +520,7 @@
         
         <div id="episodesContainer">
           <div class="ep-row">
-            <input type="text" placeholder="File / Episode / Quality Name (e.g. 720p or Episode 1)" class="ep-name" style="width:100%; padding:6px; margin-bottom:6px; background:#000; border:1px solid #1E2538; color:#fff;" required>
+            <input type="text" placeholder="File / Episode / Quality Name (e.g. 720p)" class="ep-name" style="width:100%; padding:6px; margin-bottom:6px; background:#000; border:1px solid #1E2538; color:#fff;" required>
             <input type="url" placeholder="Direct Stream URL" class="ep-stream" style="width:100%; padding:6px; margin-bottom:6px; background:#000; border:1px solid #1E2538; color:#fff;" required>
             <input type="url" placeholder="Direct Download URL" class="ep-download" style="width:100%; padding:6px; background:#000; border:1px solid #1E2538; color:#fff;" required>
           </div>
@@ -529,10 +549,10 @@
         rating: "8.5",
         poster: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600",
         files: [
-          { name: "Episode 1", streamUrl: "https://www.w3schools.com/html/mov_bbb.mp4", downloadUrl: "https://www.w3schools.com/html/mov_bbb.mp4" },
-          { name: "Episode 2", streamUrl: "https://www.w3schools.com/html/mov_bbb.mp4", downloadUrl: "https://www.w3schools.com/html/mov_bbb.mp4" }
+          { name: "The Remarried Empress S01E01 540p WEB-DL", streamUrl: "https://www.w3schools.com/html/mov_bbb.mp4", downloadUrl: "https://www.w3schools.com/html/mov_bbb.mp4" },
+          { name: "The Remarried Empress S01E01 720p WEB-DL", streamUrl: "https://www.w3schools.com/html/mov_bbb.mp4", downloadUrl: "https://www.w3schools.com/html/mov_bbb.mp4" }
         ],
-        desc: "An empress chooses to remarry after her husband demands a divorce to stay with his mistress."
+        desc: "This File Is Added By @Aero_Unity."
       },
       {
         id: 2,
@@ -542,15 +562,13 @@
         rating: "7.4",
         poster: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600",
         files: [
-          { name: "480p", streamUrl: "https://www.w3schools.com/html/mov_bbb.mp4", downloadUrl: "https://www.w3schools.com/html/mov_bbb.mp4" },
-          { name: "720p", streamUrl: "https://www.w3schools.com/html/mov_bbb.mp4", downloadUrl: "https://www.w3schools.com/html/mov_bbb.mp4" },
           { name: "1080p", streamUrl: "https://www.w3schools.com/html/mov_bbb.mp4", downloadUrl: "https://www.w3schools.com/html/mov_bbb.mp4" }
         ],
-        desc: "Follows a courier tasked with delivering a package to a remote hospital amidst an outbreak."
+        desc: "This File Is Added By @Aero_Unity."
       }
     ];
 
-    let moviesList = JSON.parse(localStorage.getItem('aero_unity_movies_v10')) || defaultMovies;
+    let moviesList = JSON.parse(localStorage.getItem('aero_unity_movies_v11')) || defaultMovies;
     let currentCategory = 'All';
 
     function renderMovies(data) {
@@ -589,6 +607,7 @@
       if(!movie) return;
 
       const firstStream = movie.files && movie.files.length > 0 ? movie.files[0].streamUrl : '';
+      let isAdmin = new URLSearchParams(window.location.search).get('admin') === 'true';
       
       document.getElementById('detailHero').innerHTML = firstStream ? 
         `<video controls autoplay poster="${movie.poster}"><source src="${firstStream}" type="video/mp4"></video>` : 
@@ -596,13 +615,14 @@
 
       let episodesHtml = '';
       if(movie.files && movie.files.length > 0) {
-        movie.files.forEach(file => {
+        movie.files.forEach((file, index) => {
           episodesHtml += `
             <div class="episode-card">
-              <span><strong>${file.name}</strong></span>
-              <div style="display:flex; gap:8px;">
-                <a href="${file.streamUrl}" target="_blank" class="btn-action primary"><i class="fa-solid fa-play"></i> Stream</a>
-                <a href="${file.downloadUrl}" target="_blank" class="btn-action"><i class="fa-solid fa-download"></i> Download</a>
+              <div class="ep-info"><strong>${file.name}</strong></div>
+              <div class="ep-actions" style="display:flex; gap:8px; align-items:center;">
+                <a href="${file.streamUrl}" target="_blank" class="btn-action primary" style="flex:1; justify-content:center;"><i class="fa-solid fa-play"></i> Stream</a>
+                <a href="${file.downloadUrl}" target="_blank" class="btn-action" style="flex:1; justify-content:center;"><i class="fa-solid fa-download"></i> Download</a>
+                ${isAdmin ? `<button class="btn-delete" onclick="deleteFile(${movie.id}, ${index})"><i class="fa-solid fa-trash"></i></button>` : ''}
               </div>
             </div>
           `;
@@ -612,7 +632,8 @@
       document.getElementById('detailContent').innerHTML = `
         <div class="detail-title">${movie.title}</div>
         <div style="font-size:0.85rem; color:var(--accent); margin-bottom:10px;">⭐ ${movie.rating} / 10 &nbsp;•&nbsp; ${movie.year} &nbsp;•&nbsp; ${movie.genre}</div>
-        <div class="detail-desc">${movie.desc || 'No description available for this title.'}</div>
+        <div class="detail-desc">${movie.desc || 'This File Is Added By @Aero_Unity.'}</div>
+        ${isAdmin ? `<button class="btn-delete" onclick="deleteEntireMovie(${movie.id})" style="margin-bottom:15px; width:100%; justify-content:center; padding:10px;"><i class="fa-solid fa-trash"></i> Delete Entire Movie Entry</button>` : ''}
         <h4 style="margin-bottom:10px;">Available Qualities / Episodes:</h4>
         <div class="episodes-list">${episodesHtml}</div>
       `;
@@ -683,21 +704,53 @@
         });
       });
 
-      const newMovie = {
-        id: Date.now(),
-        title: document.getElementById('mTitle').value,
-        year: document.getElementById('mYear').value,
-        rating: document.getElementById('mRating').value,
-        genre: document.getElementById('mGenre').value,
-        poster: document.getElementById('mPoster').value || 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600',
-        files: files,
-        desc: "This File Is Added By @Aero_Unity."
-      };
+      const titleInput = document.getElementById('mTitle').value.trim();
+      const existingMovie = moviesList.find(m => m.title.toLowerCase() === titleInput.toLowerCase());
 
-      moviesList.unshift(newMovie);
-      localStorage.setItem('aero_unity_movies_v10', JSON.stringify(moviesList));
+      if (existingMovie) {
+        // Automatically append new qualities/episodes to the existing movie instead of creating a duplicate card
+        existingMovie.files.push(...files);
+      } else {
+        const newMovie = {
+          id: Date.now(),
+          title: titleInput,
+          year: document.getElementById('mYear').value,
+          rating: document.getElementById('mRating').value,
+          genre: document.getElementById('mGenre').value,
+          poster: document.getElementById('mPoster').value || 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600',
+          files: files,
+          desc: "This File Is Added By @Aero_Unity."
+        };
+        moviesList.unshift(newMovie);
+      }
+
+      localStorage.setItem('aero_unity_movies_v11', JSON.stringify(moviesList));
       filterMovies();
       closeAddModal();
+    }
+
+    function deleteFile(movieId, fileIndex) {
+      if(!confirm("Are you sure you want to delete this specific quality/file?")) return;
+      const movie = moviesList.find(m => m.id === movieId);
+      if(movie) {
+        movie.files.splice(fileIndex, 1);
+        if(movie.files.length === 0) {
+          moviesList = moviesList.filter(m => m.id !== movieId);
+          closeDetail();
+        } else {
+          openDetail(movieId);
+        }
+        localStorage.setItem('aero_unity_movies_v11', JSON.stringify(moviesList));
+        filterMovies();
+      }
+    }
+
+    function deleteEntireMovie(movieId) {
+      if(!confirm("Are you sure you want to delete this entire movie and all its files?")) return;
+      moviesList = moviesList.filter(m => m.id !== movieId);
+      localStorage.setItem('aero_unity_movies_v11', JSON.stringify(moviesList));
+      closeDetail();
+      filterMovies();
     }
 
     document.addEventListener('DOMContentLoaded', () => {
