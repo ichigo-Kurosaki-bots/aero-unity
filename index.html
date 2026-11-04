@@ -12,6 +12,7 @@
       --card-border: #1E2538;
       --accent: #E5A93B;
       --accent-blue: #2563EB;
+      --accent-red: #EF4444;
       --text-main: #F3F4F6;
       --text-muted: #9CA3AF;
     }
@@ -71,6 +72,28 @@
       font-weight: 800;
       color: #fff;
       letter-spacing: -0.5px;
+    }
+
+    .top-nav-links {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+
+    .top-nav-btn {
+      color: var(--text-muted);
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      text-transform: uppercase;
+      padding: 6px 10px;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .top-nav-btn.active {
+      color: #fff;
+      border-bottom: 2px solid var(--accent-red);
     }
 
     .btn-add {
@@ -225,6 +248,78 @@
     .card-sub .rating {
       color: var(--accent);
       font-weight: 700;
+    }
+
+    /* About Section Design */
+    .about-view {
+      display: none;
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 0 15px;
+      text-align: center;
+    }
+
+    .about-sub-nav {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 25px;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 10px;
+      overflow-x: auto;
+    }
+
+    .about-tab-btn {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      padding-bottom: 5px;
+    }
+
+    .about-tab-btn.active {
+      color: #fff;
+      border-bottom: 2px solid var(--accent-red);
+    }
+
+    .about-tab-content {
+      display: none;
+      padding: 20px 0;
+      line-height: 1.8;
+    }
+
+    .about-tab-content.active {
+      display: block;
+    }
+
+    .about-heading {
+      font-size: 1.2rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      letter-spacing: 0.5px;
+    }
+
+    .highlight-red {
+      color: var(--accent-red);
+      font-weight: 700;
+    }
+
+    .about-btn-link {
+      display: block;
+      width: 100%;
+      max-width: 350px;
+      margin: 12px auto;
+      padding: 14px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.9rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     }
 
     /* Detail View Screen */
@@ -457,12 +552,18 @@
         <h1>Aero Unity Movies</h1>
       </div>
     </div>
-    <!-- ADD FILE button unlocked only with ?admin=true -->
-    <button class="btn-add" id="addFileBtn" onclick="openAddModal()">
-      <i class="fa-solid fa-plus"></i> ADD FILE
-    </button>
+    
+    <div class="top-nav-links">
+      <span class="top-nav-btn active" id="navHomeTab" onclick="switchMainTab('home')">Home</span>
+      <span class="top-nav-btn" id="navAboutTab" onclick="switchMainTab('about')">About</span>
+      <!-- ADD FILE button unlocked only with ?admin=true -->
+      <button class="btn-add" id="addFileBtn" onclick="openAddModal()">
+        <i class="fa-solid fa-plus"></i> ADD FILE
+      </button>
+    </div>
   </header>
 
+  <!-- HOME VIEW SECTION -->
   <div class="container" id="homeView">
     <!-- Category Navigation Pills -->
     <div class="pill-nav">
@@ -482,6 +583,54 @@
     <div class="movie-grid" id="movieGrid"></div>
 
     <!-- Footer at the bottom of Home View -->
+    <div class="site-footer">
+      All rights are reserved 2026 by Mohammed.<br>
+      Made by Mohammed<br>
+      Contact: Telegram <a href="https://t.me/Mr_Mohammed_29" target="_blank">@Mr_Mohammed_29</a><br>
+      Updates Channel <a href="https://t.me/Aero_Unity" target="_blank">@Aero_Unity</a>
+    </div>
+  </div>
+
+  <!-- ABOUT SECTION -->
+  <div class="about-view" id="aboutView">
+    <div class="about-sub-nav">
+      <span class="about-tab-btn active" onclick="switchAboutTab('welcome', this)">WELCOME</span>
+      <span class="about-tab-btn" onclick="switchAboutTab('channels', this)">CHANNELS</span>
+      <span class="about-tab-btn" onclick="switchAboutTab('contact', this)">CONTACT</span>
+      <span class="about-tab-btn" onclick="switchAboutTab('disclaimer', this)">DISCLAIMER</span>
+    </div>
+
+    <!-- WELCOME TAB -->
+    <div class="about-tab-content active" id="tab-welcome">
+      <h2 class="about-heading">WELCOME TO OUR <span class="highlight-red">AERO UNITY MOVIES</span></h2>
+      <p style="margin-bottom: 20px;">
+        This Is A Digital Platform To Stream <span class="highlight-red">Movies</span> And <span class="highlight-red">Series</span> Directly Online. You Can Also <span class="highlight-red">Download</span> Them High-Speed Whenever You Want. Developed By <span class="highlight-red">Mohammed</span>.
+      </p>
+      <p>If You Like This Platform, Then Don't Forget To Share It With Your Friends And Family.</p>
+    </div>
+
+    <!-- CHANNELS TAB -->
+    <div class="about-tab-content" id="tab-channels">
+      <h2 class="about-heading">JOIN OUR <span class="highlight-red">TELEGRAM</span> CHANNELS</h2>
+      <a href="https://t.me/Aero_Unity" target="_blank" class="about-btn-link">Aero Unity Channel</a>
+      <a href="https://t.me/Mr_Mohammed_29" target="_blank" class="about-btn-link">Developer</a>
+    </div>
+
+    <!-- CONTACT TAB -->
+    <div class="about-tab-content" id="tab-contact">
+      <p style="margin-bottom: 25px; font-weight: 700; font-size: 1.05rem;">Report Bugs And Contact Us On Telegram Below</p>
+      <a href="https://t.me/Mr_Mohammed_29" target="_blank" class="about-btn-link" style="max-width: 250px;">CONTACT</a>
+    </div>
+
+    <!-- DISCLAIMER TAB -->
+    <div class="about-tab-content" id="tab-disclaimer">
+      <h2 class="about-heading">LEGAL <span class="highlight-red">DISCLAIMER</span></h2>
+      <p style="font-size: 0.85rem; color: var(--text-muted); text-align: justify; line-height: 1.6;">
+        Aero Unity Movies does not host, store, or index any video media files on its own servers. All content, video streams, and downloads provided on this site are hosted entirely on third-party non-affiliated services. We respect copyright regulations and take intellectual property rights seriously. If you believe any link infringes upon your copyright, please contact the respective third-party video hosting providers or get in touch directly via our official Telegram contact.
+      </p>
+    </div>
+
+    <!-- Footer at the bottom of About View -->
     <div class="site-footer">
       All rights are reserved 2026 by Mohammed.<br>
       Made by Mohammed<br>
@@ -579,6 +728,31 @@
     let moviesList = JSON.parse(localStorage.getItem('aero_unity_movies_v11')) || defaultMovies;
     let currentCategory = 'All';
 
+    function switchMainTab(tab) {
+      if(tab === 'home') {
+        document.getElementById('homeView').style.display = 'block';
+        document.getElementById('aboutView').style.display = 'none';
+        document.getElementById('detailView').style.display = 'none';
+        document.getElementById('navHomeTab').classList.add('active');
+        document.getElementById('navAboutTab').classList.remove('active');
+      } else if(tab === 'about') {
+        document.getElementById('homeView').style.display = 'none';
+        document.getElementById('aboutView').style.display = 'block';
+        document.getElementById('detailView').style.display = 'none';
+        document.getElementById('navHomeTab').classList.remove('active');
+        document.getElementById('navAboutTab').classList.add('active');
+      }
+    }
+
+    function switchAboutTab(subTab, element) {
+      document.querySelectorAll('.about-tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.about-tab-content').forEach(content => content.classList.remove('active'));
+      
+      if(element) element.classList.add('active');
+      const targetContent = document.getElementById('tab-' + subTab);
+      if(targetContent) targetContent.classList.add('active');
+    }
+
     function renderMovies(data) {
       const grid = document.getElementById('movieGrid');
       grid.innerHTML = '';
@@ -656,12 +830,13 @@
       `;
 
       document.getElementById('homeView').style.display = 'none';
+      document.getElementById('aboutView').style.display = 'none';
       document.getElementById('detailView').style.display = 'block';
     }
 
     function closeDetail() {
       document.getElementById('detailView').style.display = 'none';
-      document.getElementById('homeView').style.display = 'block';
+      switchMainTab('home');
     }
 
     function goHome() {
