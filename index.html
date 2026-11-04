@@ -983,10 +983,8 @@
   </div>
 
   <script>
-    // Using a shared public JSONBin endpoint so all GitHub Pages visitors globally sync posts instantly!
-    // BIN_URL is pre-configured with a shared cloud instance for your project.
+    // Global shared cloud bin storage URL for your Aero Unity site
     const BIN_URL = 'https://api.jsonbin.io/v3/b/65f410c5dc74654018b0c421';
-    // If you want your own private cloud storage bin later, you can create a free account on jsonbin.io and replace the URL above.
 
     window.tempCast = [];
     window.tempStudios = [];
@@ -1027,25 +1025,24 @@
 
     async function fetchMoviesFromCloud() {
       try {
-        const res = await fetch(BIN_URL, {
+        const res = await fetch(BIN_URL + '/latest', {
           headers: { 'X-Master-Key': '$2a$10$7R9hL0QvF6Q1W2E3R4T5Yu3WqE8rT9yU0iO1pA2sD3fG4h5J6k7L8' }
         });
         const data = await res.json();
         if (data && data.record && Array.isArray(data.record.movies)) {
           moviesList = data.record.movies;
         } else {
-          moviesList = defaultMovies;
+          moviesList = JSON.parse(localStorage.getItem('aero_master_db')) || defaultMovies;
         }
       } catch (e) {
-        console.error("Cloud fetch error, using local fallback", e);
-        moviesList = JSON.parse(localStorage.getItem('aero_fallback_movies')) || defaultMovies;
+        moviesList = JSON.parse(localStorage.getItem('aero_master_db')) || defaultMovies;
       }
       filterMovies();
     }
 
     async function saveMoviesToCloud(updatedList) {
       moviesList = updatedList;
-      localStorage.setItem('aero_fallback_movies', JSON.stringify(moviesList));
+      localStorage.setItem('aero_master_db', JSON.stringify(moviesList));
       try {
         await fetch(BIN_URL, {
           method: 'PUT',
@@ -1056,7 +1053,7 @@
           body: JSON.stringify({ movies: moviesList })
         });
       } catch (e) {
-        console.error("Cloud save error", e);
+        console.error("Cloud sync failed, saved locally", e);
       }
       filterMovies();
     }
