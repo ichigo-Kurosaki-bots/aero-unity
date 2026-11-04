@@ -983,11 +983,11 @@
   </div>
 
   <script>
-    // Storage version key updated to v21 to ensure clean state initialization with persistent storage
-    const STORAGE_KEY = 'aero_unity_movies_v21';
+    const STORAGE_KEY = 'aero_unity_movies_v22';
 
-    window.fetchedCast = [];
-    window.fetchedStudios = [];
+    // Temporary global buffers during the modal session
+    window.tempCast = [];
+    window.tempStudios = [];
 
     const defaultMovies = [
       {
@@ -1008,7 +1008,6 @@
           { name: "Shin Min-a", role: "Navier", img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300" },
           { name: "Ju Ji-hoon", role: "Sovieshu", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300" },
           { name: "Lee Jong-suk", role: "Heinrey", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300" },
-          { name: "Lee Se-young", role: "Rashta", img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300" },
           { name: "Jo Soo-won", role: "Director", img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300" }
         ],
         studios: [
@@ -1016,8 +1015,7 @@
           { name: "Disney+", logo: "https://images.unsplash.com/photo-1622979135225-d2ba269bc1df?w=100" }
         ],
         files: [
-          { name: "S01E01 720p WEB-DL", size: "450.20 MB", downloadUrl: "https://www.w3schools.com/html/mov_bbb.mp4" },
-          { name: "S01E02 720p WEB-DL", size: "462.10 MB", downloadUrl: "https://www.w3schools.com/html/mov_bbb.mp4" }
+          { name: "S01E01 720p WEB-DL", size: "450.20 MB", downloadUrl: "https://www.w3schools.com/html/mov_bbb.mp4" }
         ]
       }
     ];
@@ -1080,8 +1078,8 @@
       });
     }
 
-    // Comprehensive helper to fetch cast, director, and studios for any given TMDb title/ID
-    async function fetchCastAndStudiosByName(title) {
+    // Direct synchronous-safe fetch function for cast and studios
+    async function getCastAndStudiosFromTMDb(title) {
       try {
         const searchRes = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=1865f43a0549ca50d82349d42c3c136b&query=${encodeURIComponent(title)}`);
         const searchData = await searchRes.json();
@@ -1091,11 +1089,10 @@
         const mediaType = item.media_type || (item.first_air_date ? 'tv' : 'movie');
         const tmdbId = item.id;
 
-        // Fetch production companies & networks
+        // Studios
         const detailRes = await fetch(`https://api.themoviedb.org/3/${mediaType}/${tmdbId}?api_key=1865f43a0549ca50d82349d42c3c136b`);
         const detailData = await detailRes.json();
         let studios = [];
-        
         if(detailData.production_companies && detailData.production_companies.length > 0) {
           detailData.production_companies.slice(0, 3).forEach(comp => {
             studios.push({
@@ -1113,11 +1110,10 @@
           });
         }
 
-        // Fetch cast & crew (directors)
+        // Cast & Director
         const creditsRes = await fetch(`https://api.themoviedb.org/3/${mediaType}/${tmdbId}/credits?api_key=1865f43a0549ca50d82349d42c3c136b`);
         const creditsData = await creditsRes.json();
         let cast = [];
-        
         if(creditsData.cast && creditsData.cast.length > 0) {
           creditsData.cast.slice(0, 6).forEach(c => {
             cast.push({
@@ -1127,7 +1123,6 @@
             });
           });
         }
-        
         if(creditsData.crew && creditsData.crew.length > 0) {
           const director = creditsData.crew.find(cr => cr.job === 'Director' || cr.job === 'Executive Producer' || cr.job === 'Creator' || cr.job === 'Series Director');
           if(director) {
@@ -1141,12 +1136,11 @@
 
         return { cast, studios };
       } catch(e) {
-        console.error("API Fetch Error:", e);
+        console.error("TMDb Fetch error:", e);
         return { cast: [], studios: [] };
       }
     }
 
-    // Official TMDb & IMDb API search function to fetch real-time metadata when clicking "Fetch" in the modal
     async function fetchTMDbData() {
       const query = document.getElementById('mTitle').value.trim();
       if(!query) {
@@ -1173,24 +1167,23 @@
           }
           document.getElementById('mType').value = mediaType === 'tv' ? 'TV Show' : 'Movie';
 
-          // Map genre codes
           if(item.genre_ids && item.genre_ids.length > 0) {
             const genresMap = {28:'Action',12:'Adventure',16:'Animation',35:'Comedy',80:'Crime',99:'Documentary',18:'Drama',10751:'Family',14:'Fantasy',36:'History',27:'Music',10749:'Romance',878:'Sci-Fi',53:'Thriller',10759:'Action & Adventure',10765:'Sci-Fi & Fantasy'};
             const mappedGenres = item.genre_ids.slice(0, 3).map(id => genresMap[id] || 'Drama');
             document.getElementById('mGenre').value = mappedGenres.join(', ');
           }
 
-          const extraData = await fetchCastAndStudiosByName(item.title || item.name);
-          window.fetchedCast = extraData.cast;
-          window.fetchedStudios = extraData.studios;
+          const extra = await getCastAndStudiosFromTMDb(item.title || item.name);
+          window.tempCast = extra.cast;
+          window.tempStudios = extra.studios;
 
-          alert("Official TMDb & IMDb metadata (Actors, Director, Studios) detected and saved!");
+          alert("Official TMDb metadata (Actors, Director, Studios) loaded successfully!");
         } else {
-          alert("No official entry found on TMDb. Details can be entered manually.");
+          alert("No official entry found on TMDb.");
         }
       } catch(err) {
         console.error(err);
-        alert("Error connecting to TMDb API. Please check your internet connection.");
+        alert("Error connecting to TMDb API.");
       }
     }
 
@@ -1198,11 +1191,11 @@
       const movie = moviesList.find(m => m.id === id);
       if(!movie) return;
 
-      // Auto-fetch cast & studios if missing on click to ensure actors and studios always show up
+      // Ensure missing cast or studios are auto-recovered on click
       if(!movie.cast || movie.cast.length === 0 || !movie.studios || movie.studios.length === 0) {
-        const extraData = await fetchCastAndStudiosByName(movie.title);
-        if(!movie.cast || movie.cast.length === 0) movie.cast = extraData.cast;
-        if(!movie.studios || movie.studios.length === 0) movie.studios = extraData.studios;
+        const extra = await getCastAndStudiosFromTMDb(movie.title);
+        if(!movie.cast || movie.cast.length === 0) movie.cast = extra.cast;
+        if(!movie.studios || movie.studios.length === 0) movie.studios = extra.studios;
         localStorage.setItem(STORAGE_KEY, JSON.stringify(moviesList));
       }
 
@@ -1235,7 +1228,6 @@
         });
       }
 
-      // Generate HTML for Actors & Director
       let castHtml = '';
       if(movie.cast && movie.cast.length > 0) {
         movie.cast.forEach(c => {
@@ -1249,7 +1241,6 @@
         });
       }
 
-      // Generate HTML for Production Studios
       let studioHtml = '';
       if(movie.studios && movie.studios.length > 0) {
         movie.studios.forEach(s => {
@@ -1460,6 +1451,8 @@
 
     function openAddModal() { 
       document.getElementById('mTitle').value = '';
+      window.tempCast = [];
+      window.tempStudios = [];
       document.getElementById('modalHeading').innerText = "ADD MOVIE / SERIES ENTRY";
       document.getElementById('addModal').style.display = 'flex'; 
     }
@@ -1499,20 +1492,20 @@
       const titleInput = document.getElementById('mTitle').value.trim();
       let existingMovie = moviesList.find(m => m.title.toLowerCase() === titleInput.toLowerCase());
 
-      // If actor/studio buffer is empty, auto-fetch based on title on save
-      if((!window.fetchedCast || window.fetchedCast.length === 0)) {
-        const extraData = await fetchCastAndStudiosByName(titleInput);
-        window.fetchedCast = extraData.cast;
-        window.fetchedStudios = extraData.studios;
+      // If user didn't click Fetch or buffers are empty, automatically fetch on save
+      if (!window.tempCast || window.tempCast.length === 0) {
+        const extra = await getCastAndStudiosFromTMDb(titleInput);
+        window.tempCast = extra.cast;
+        window.tempStudios = extra.studios;
       }
 
       if (existingMovie) {
         existingMovie.files.push(...files);
-        if(!existingMovie.cast || existingMovie.cast.length === 0) {
-          existingMovie.cast = window.fetchedCast || [];
+        if (!existingMovie.cast || existingMovie.cast.length === 0) {
+          existingMovie.cast = window.tempCast;
         }
-        if(!existingMovie.studios || existingMovie.studios.length === 0) {
-          existingMovie.studios = window.fetchedStudios || [];
+        if (!existingMovie.studios || existingMovie.studios.length === 0) {
+          existingMovie.studios = window.tempStudios;
         }
       } else {
         const newMovie = {
@@ -1528,21 +1521,23 @@
           backdrop: document.getElementById('mBackdrop').value || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1200',
           desc: document.getElementById('mDesc').value || 'A premium movie streaming and high-speed downloading portal maintained by Aero Unity.',
           downloads: 1400,
-          cast: window.fetchedCast || [],
-          studios: window.fetchedStudios || [],
+          cast: window.tempCast || [],
+          studios: window.tempStudios || [],
           files: files
         };
         moviesList.unshift(newMovie);
         existingMovie = newMovie;
       }
 
+      // Persist to localStorage immediately so updates are never lost on refresh
       localStorage.setItem(STORAGE_KEY, JSON.stringify(moviesList));
-      filterMovies();
-      closeAddModal();
       
-      window.fetchedCast = [];
-      window.fetchedStudios = [];
+      // Reset buffers
+      window.tempCast = [];
+      window.tempStudios = [];
 
+      closeAddModal();
+      renderMovies(moviesList);
       openDetail(existingMovie.id);
     }
 
