@@ -983,7 +983,10 @@
   </div>
 
   <script>
-    // Updated default list with complete cast, director, and studio records for official titles like The Remarried Empress
+    // Global cached cast & studios when fetched or auto-resolved
+    window.fetchedCast = [];
+    window.fetchedStudios = [];
+
     const defaultMovies = [
       {
         id: 1,
@@ -1017,7 +1020,7 @@
       }
     ];
 
-    let moviesList = JSON.parse(localStorage.getItem('aero_unity_movies_v19')) || defaultMovies;
+    let moviesList = JSON.parse(localStorage.getItem('aero_unity_movies_v20')) || defaultMovies;
     let currentCategory = 'All';
 
     function switchMainTab(tab) {
@@ -1075,6 +1078,62 @@
       });
     }
 
+    // Helper function to auto-fetch credits and studios for any given TMDb ID and media type
+    async function fetchCastAndStudiosForMedia(tmdbId, mediaType) {
+      try {
+        const detailRes = await fetch(`https://api.themoviedb.org/3/${mediaType}/${tmdbId}?api_key=1865f43a0549ca50d82349d42c3c136b`);
+        const detailData = await detailRes.json();
+        let studios = [];
+        
+        if(detailData.production_companies && detailData.production_companies.length > 0) {
+          detailData.production_companies.slice(0, 3).forEach(comp => {
+            studios.push({
+              name: comp.name,
+              logo: comp.logo_path ? `https://image.tmdb.org/t/p/w185${comp.logo_path}` : 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100'
+            });
+          });
+        }
+        if(detailData.networks && detailData.networks.length > 0) {
+          detailData.networks.slice(0, 2).forEach(net => {
+            studios.push({
+              name: net.name,
+              logo: net.logo_path ? `https://image.tmdb.org/t/p/w185${net.logo_path}` : 'https://images.unsplash.com/photo-1622979135225-d2ba269bc1df?w=100'
+            });
+          });
+        }
+
+        const creditsRes = await fetch(`https://api.themoviedb.org/3/${mediaType}/${tmdbId}/credits?api_key=1865f43a0549ca50d82349d42c3c136b`);
+        const creditsData = await creditsRes.json();
+        let cast = [];
+        
+        if(creditsData.cast && creditsData.cast.length > 0) {
+          creditsData.cast.slice(0, 6).forEach(c => {
+            cast.push({
+              name: c.name,
+              role: c.character || 'Actor',
+              img: c.profile_path ? `https://image.tmdb.org/t/p/w185${c.profile_path}` : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=300'
+            });
+          });
+        }
+        
+        if(creditsData.crew && creditsData.crew.length > 0) {
+          const director = creditsData.crew.find(cr => cr.job === 'Director' || cr.job === 'Executive Producer' || cr.job === 'Creator' || cr.job === 'Series Director');
+          if(director) {
+            cast.push({
+              name: director.name,
+              role: director.job || 'Director',
+              img: director.profile_path ? `https://image.tmdb.org/t/p/w185${director.profile_path}` : 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300'
+            });
+          }
+        }
+
+        return { cast, studios };
+      } catch(e) {
+        console.error("Error fetching cast/studios:", e);
+        return { cast: [], studios: [] };
+      }
+    }
+
     // Official TMDb & IMDb API search function to fetch real-time Actors, Directors, and Studios
     async function fetchTMDbData() {
       const query = document.getElementById('mTitle').value.trim();
@@ -1109,53 +1168,9 @@
             document.getElementById('mGenre').value = mappedGenres.join(', ');
           }
 
-          // Fetch detail endpoint for official studios
-          const detailRes = await fetch(`https://api.themoviedb.org/3/${mediaType}/${item.id}?api_key=1865f43a0549ca50d82349d42c3c136b`);
-          const detailData = await detailRes.json();
-          window.fetchedStudios = [];
-          
-          if(detailData.production_companies && detailData.production_companies.length > 0) {
-            detailData.production_companies.slice(0, 3).forEach(comp => {
-              window.fetchedStudios.push({
-                name: comp.name,
-                logo: comp.logo_path ? `https://image.tmdb.org/t/p/w185${comp.logo_path}` : 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100'
-              });
-            });
-          }
-          if(detailData.networks && detailData.networks.length > 0) {
-            detailData.networks.slice(0, 2).forEach(net => {
-              window.fetchedStudios.push({
-                name: net.name,
-                logo: net.logo_path ? `https://image.tmdb.org/t/p/w185${net.logo_path}` : 'https://images.unsplash.com/photo-1622979135225-d2ba269bc1df?w=100'
-              });
-            });
-          }
-
-          // Fetch credits endpoint for official actors and directors
-          const creditsRes = await fetch(`https://api.themoviedb.org/3/${mediaType}/${item.id}/credits?api_key=1865f43a0549ca50d82349d42c3c136b`);
-          const creditsData = await creditsRes.json();
-          window.fetchedCast = [];
-          
-          if(creditsData.cast && creditsData.cast.length > 0) {
-            creditsData.cast.slice(0, 6).forEach(c => {
-              window.fetchedCast.push({
-                name: c.name,
-                role: c.character || 'Actor',
-                img: c.profile_path ? `https://image.tmdb.org/t/p/w185${c.profile_path}` : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=300'
-              });
-            });
-          }
-          
-          if(creditsData.crew && creditsData.crew.length > 0) {
-            const director = creditsData.crew.find(cr => cr.job === 'Director' || cr.job === 'Executive Producer' || cr.job === 'Creator' || cr.job === 'Series Director');
-            if(director) {
-              window.fetchedCast.push({
-                name: director.name,
-                role: director.job || 'Director',
-                img: director.profile_path ? `https://image.tmdb.org/t/p/w185${director.profile_path}` : 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300'
-              });
-            }
-          }
+          const extraData = await fetchCastAndStudiosForMedia(item.id, mediaType);
+          window.fetchedCast = extraData.cast;
+          window.fetchedStudios = extraData.studios;
 
           alert("Official TMDb & IMDb metadata (Actors, Director, Studios) detected and saved!");
         } else {
@@ -1167,9 +1182,27 @@
       }
     }
 
-    function openDetail(id) {
+    async function openDetail(id) {
       const movie = moviesList.find(m => m.id === id);
       if(!movie) return;
+
+      // Fallback auto-fetch if existing entry lacks cast or studios
+      if((!movie.cast || movie.cast.length === 0 || !movie.studios || movie.studios.length === 0)) {
+        try {
+          const res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=1865f43a0549ca50d82349d42c3c136b&query=${encodeURIComponent(movie.title)}`);
+          const data = await res.json();
+          if(data.results && data.results.length > 0) {
+            const item = data.results[0];
+            const mediaType = item.media_type || (item.first_air_date ? 'tv' : 'movie');
+            const extraData = await fetchCastAndStudiosForMedia(item.id, mediaType);
+            if(!movie.cast || movie.cast.length === 0) movie.cast = extraData.cast;
+            if(!movie.studios || movie.studios.length === 0) movie.studios = extraData.studios;
+            localStorage.setItem('aero_unity_movies_v20', JSON.stringify(moviesList));
+          }
+        } catch(e) {
+          console.error("Auto-recovery error:", e);
+        }
+      }
 
       let isAdmin = new URLSearchParams(window.location.search).get('admin') === 'true';
       
@@ -1349,7 +1382,7 @@
       const movie = moviesList.find(m => m.id === movieId);
       if (movie) {
         movie.downloads = (movie.downloads || 2450) + 1;
-        localStorage.setItem('aero_unity_movies_v19', JSON.stringify(moviesList));
+        localStorage.setItem('aero_unity_movies_v20', JSON.stringify(moviesList));
         document.getElementById('totalDownloadsDisplay').innerText = movie.downloads;
         document.getElementById('monthDownloadsDisplay').innerText = movie.downloads;
         document.getElementById('weekDownloadsDisplay').innerText = movie.downloads;
@@ -1369,7 +1402,7 @@
         movie.userRatingsSum += starValueToTen;
         movie.rating = parseFloat((movie.userRatingsSum / movie.ratingCount).toFixed(1));
 
-        localStorage.setItem('aero_unity_movies_v19', JSON.stringify(moviesList));
+        localStorage.setItem('aero_unity_movies_v20', JSON.stringify(moviesList));
 
         const starsElements = document.querySelectorAll('#starContainer i');
         starsElements.forEach((s, idx) => {
@@ -1449,7 +1482,7 @@
       container.appendChild(row);
     }
 
-    function saveMovie(e) {
+    async function saveMovie(e) {
       e.preventDefault();
       const epRows = document.querySelectorAll('.ep-row');
       const files = [];
@@ -1464,8 +1497,31 @@
       const titleInput = document.getElementById('mTitle').value.trim();
       const existingMovie = moviesList.find(m => m.title.toLowerCase() === titleInput.toLowerCase());
 
+      // If user hasn't fetched or window.fetchedCast is empty, let's auto-fetch on save right now
+      if((!window.fetchedCast || window.fetchedCast.length === 0) && (!existingMovie || !existingMovie.cast || existingMovie.cast.length === 0)) {
+        try {
+          const res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=1865f43a0549ca50d82349d42c3c136b&query=${encodeURIComponent(titleInput)}`);
+          const data = await res.json();
+          if(data.results && data.results.length > 0) {
+            const item = data.results[0];
+            const mediaType = item.media_type || (item.first_air_date ? 'tv' : 'movie');
+            const extraData = await fetchCastAndStudiosForMedia(item.id, mediaType);
+            window.fetchedCast = extraData.cast;
+            window.fetchedStudios = extraData.studios;
+          }
+        } catch(err) {
+          console.error("Auto fetch on save error:", err);
+        }
+      }
+
       if (existingMovie) {
         existingMovie.files.push(...files);
+        if((!existingMovie.cast || existingMovie.cast.length === 0) && window.fetchedCast && window.fetchedCast.length > 0) {
+          existingMovie.cast = window.fetchedCast;
+        }
+        if((!existingMovie.studios || existingMovie.studios.length === 0) && window.fetchedStudios && window.fetchedStudios.length > 0) {
+          existingMovie.studios = window.fetchedStudios;
+        }
       } else {
         const newMovie = {
           id: Date.now(),
@@ -1487,10 +1543,14 @@
         moviesList.unshift(newMovie);
       }
 
-      localStorage.setItem('aero_unity_movies_v19', JSON.stringify(moviesList));
+      localStorage.setItem('aero_unity_movies_v20', JSON.stringify(moviesList));
       filterMovies();
       closeAddModal();
       
+      // Reset temporary fetched buffers
+      window.fetchedCast = [];
+      window.fetchedStudios = [];
+
       if (existingMovie) {
         openDetail(existingMovie.id);
       }
@@ -1507,7 +1567,7 @@
         } else {
           openDetail(movieId);
         }
-        localStorage.setItem('aero_unity_movies_v19', JSON.stringify(moviesList));
+        localStorage.setItem('aero_unity_movies_v20', JSON.stringify(moviesList));
         filterMovies();
       }
     }
@@ -1515,7 +1575,7 @@
     function deleteEntireMovie(movieId) {
       if(!confirm("Are you sure you want to delete this entire movie and all its files?")) return;
       moviesList = moviesList.filter(m => m.id !== movieId);
-      localStorage.setItem('aero_unity_movies_v19', JSON.stringify(moviesList));
+      localStorage.initItem ? null : localStorage.setItem('aero_unity_movies_v20', JSON.stringify(moviesList));
       closeDetail();
       filterMovies();
     }
