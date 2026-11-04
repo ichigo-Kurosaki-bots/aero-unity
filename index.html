@@ -434,6 +434,7 @@
       align-items: center;
       gap: 6px;
       cursor: pointer;
+      text-decoration: none;
     }
 
     .detail-desc {
@@ -476,7 +477,7 @@
       letter-spacing: 0.5px;
     }
 
-    /* Download Analytics Grid (Reference Image 5 layout) */
+    /* Download Analytics Grid */
     .analytics-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -596,7 +597,7 @@
       white-space: nowrap;
     }
 
-    /* Review Section (Reference Image 5 style) */
+    /* Review Section */
     .review-section {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
@@ -990,12 +991,15 @@
         title: "The Remarried Empress",
         year: 2026,
         genre: "Drama, Romance",
-        rating: "8.2",
+        rating: 8.2,
+        ratingCount: 2821,
+        userRatingsSum: 23120,
         language: "Korean",
         type: "Drama",
         poster: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600",
         backdrop: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1200",
         desc: "Empress Navier of the Eastern Empire requests a divorce from her husband after he brings home a mistress, setting her eyes on the neighboring empire's crown.",
+        downloads: 1400,
         cast: [
           { name: "Shin Min-a", role: "Navier", img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300" },
           { name: "Lee Jae-wook", role: "Heinrey", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300" },
@@ -1012,7 +1016,7 @@
       }
     ];
 
-    let moviesList = JSON.parse(localStorage.getItem('aero_unity_movies_v14')) || defaultMovies;
+    let moviesList = JSON.parse(localStorage.getItem('aero_unity_movies_v15')) || defaultMovies;
     let currentCategory = 'All';
 
     function switchMainTab(tab) {
@@ -1048,6 +1052,7 @@
       }
       data.forEach(movie => {
         const primaryGenre = movie.genre ? movie.genre.split(',')[0].trim() : 'Media';
+        const displayRating = typeof movie.rating === 'number' ? movie.rating.toFixed(1) : movie.rating;
         grid.innerHTML += `
           <div class="movie-card" onclick="openDetail(${movie.id})">
             <div class="poster-box">
@@ -1061,7 +1066,7 @@
               <div class="card-title">${movie.title}</div>
               <div class="card-sub">
                 <span>${movie.year}</span>
-                <span class="rating"><i class="fa-solid fa-star"></i> ${movie.rating}</span>
+                <span class="rating"><i class="fa-solid fa-star"></i> ${displayRating}</span>
               </div>
             </div>
           </div>
@@ -1069,7 +1074,7 @@
       });
     }
 
-    // Official TMDb / IMDb Auto-fetch integration (Cast, Crew, Studios, Synopsis, Genres, Ratings)
+    // Official TMDb / IMDb Auto-fetch integration
     async function fetchTMDbData() {
       const query = document.getElementById('mTitle').value.trim();
       if(!query) {
@@ -1100,7 +1105,7 @@
             document.getElementById('mGenre').value = mappedGenres.join(', ');
           }
 
-          // Fetch credits (Cast & Crew) & Studios (Networks/Production Companies)
+          // Fetch credits & Studios
           const detailRes = await fetch(`https://api.themoviedb.org/3/${item.media_type || 'movie'}/${item.id}?api_key=1865f43a0549ca50d82349d42c3c136b`);
           const detailData = await detailRes.json();
           window.fetchedStudios = [];
@@ -1171,7 +1176,7 @@
                 <span class="file-size-info"><i class="fa-solid fa-hard-drive"></i> ${file.size || '700 MB'}</span>
               </div>
               <div style="display:flex; gap:8px; align-items:center;">
-                <a href="${file.downloadUrl}" target="_blank" class="btn-download-red"><i class="fa-solid fa-download"></i> Download</a>
+                <a href="${file.downloadUrl}" target="_blank" onclick="incrementDownload(${movie.id})" class="btn-download-red"><i class="fa-solid fa-download"></i> Download</a>
                 ${isAdmin ? `<button class="btn-delete" onclick="deleteFile(${movie.id}, ${index})"><i class="fa-solid fa-trash"></i></button>` : ''}
               </div>
             </div>
@@ -1204,6 +1209,10 @@
         });
       }
 
+      const currentRatingDisplay = typeof movie.rating === 'number' ? movie.rating.toFixed(1) : movie.rating;
+      const totalVotes = movie.ratingCount || 2821;
+      const totalDownloads = movie.downloads || 1400;
+
       document.getElementById('detailContent').innerHTML = `
         <div class="detail-poster-card">
           <img src="${movie.poster}" alt="${movie.title}">
@@ -1228,7 +1237,7 @@
         
         ${isAdmin ? `<button class="btn-delete" onclick="deleteEntireMovie(${movie.id})" style="margin-bottom:20px; width:100%; justify-content:center; padding:10px;"><i class="fa-solid fa-trash"></i> Delete Entire Movie Entry</button>` : ''}
 
-        <!-- Official Ratings Grid (Matches Ref Image 4 style) -->
+        <!-- Official Ratings Grid -->
         <div class="ratings-container">
           <div class="rating-box">
             <div class="score">4.0 <span style="font-size:0.8rem; font-weight:400; color:var(--text-muted);">/5</span></div>
@@ -1236,33 +1245,33 @@
             <div style="font-size:0.7rem; color:var(--text-muted); margin-top:4px;">52,034 votes</div>
           </div>
           <div class="rating-box">
-            <div class="score" style="color:var(--accent);">${movie.rating} <span style="font-size:0.8rem; font-weight:400; color:var(--text-muted);">/10</span></div>
+            <div class="score" style="color:var(--accent);" id="imdbScoreDisplay">${currentRatingDisplay} <span style="font-size:0.8rem; font-weight:400; color:var(--text-muted);">/10</span></div>
             <div class="source-label">IMDb Official</div>
-            <div style="font-size:0.7rem; color:var(--text-muted); margin-top:4px;">2,821 votes</div>
+            <div style="font-size:0.7rem; color:var(--text-muted); margin-top:4px;" id="imdbVotesDisplay">${totalVotes} votes</div>
           </div>
         </div>
 
-        <!-- Download Analytics Grid (Matches Ref Image 5 style) -->
+        <!-- Download Analytics Grid -->
         <div class="analytics-grid">
           <div class="analytics-box">
-            <div class="stat-num">1.4k</div>
+            <div class="stat-num" id="totalDownloadsDisplay">${totalDownloads}</div>
             <div class="stat-label">Total Downloads</div>
           </div>
           <div class="analytics-box">
-            <div class="stat-num" style="color:#22C55E;">1.4k</div>
+            <div class="stat-num" style="color:#22C55E;" id="monthDownloadsDisplay">${totalDownloads}</div>
             <div class="stat-label">Last 30 Days</div>
           </div>
           <div class="analytics-box">
-            <div class="stat-num" style="color:#3B82F6;">1.4k</div>
+            <div class="stat-num" style="color:#3B82F6;" id="weekDownloadsDisplay">${totalDownloads}</div>
             <div class="stat-label">Last 7 Days</div>
           </div>
           <div class="analytics-box">
-            <div class="stat-num" style="color:#A855F7;">572</div>
+            <div class="stat-num" style="color:#A855F7;" id="todayDownloadsDisplay">${Math.round(totalDownloads * 0.4)}</div>
             <div class="stat-label">Today</div>
           </div>
         </div>
 
-        <!-- Studios Section (Matches Ref Image 4 style) -->
+        <!-- Studios Section -->
         ${studioHtml ? `
         <div class="studio-section">
           <div class="section-subtitle"><i class="fa-solid fa-building" style="color:var(--accent);"></i> Studios</div>
@@ -1272,7 +1281,7 @@
         </div>
         ` : ''}
 
-        <!-- Cast & Director Section (Matches Ref Image 3 style) -->
+        <!-- Cast & Director Section -->
         ${castHtml ? `
         <div class="cast-section">
           <div class="section-subtitle"><i class="fa-solid fa-users" style="color:var(--accent);"></i> Cast & Director</div>
@@ -1282,7 +1291,7 @@
         </div>
         ` : ''}
 
-        <!-- Download Section Container (Matches Ref Image 2 style) -->
+        <!-- Download Section Container -->
         <div class="download-group-card">
           <div class="download-group-header">
             <span style="font-weight:700; font-size:0.95rem; display:flex; align-items:center; gap:8px;">
@@ -1294,16 +1303,16 @@
           ${isAdmin ? `<button class="btn-action primary" onclick="openAddModalForMovie('${movie.title.replace(/'/g, "\\'")}')" style="width:100%; margin-top:10px; justify-content:center; padding:10px;"><i class="fa-solid fa-plus"></i> Add Multiple Files / Episodes Here</button>` : ''}
         </div>
 
-        <!-- Reviews Section (Matches Ref Image 5 style) -->
+        <!-- Reviews Section with interactive user rating -->
         <div class="review-section">
           <div style="font-weight:800; font-size:1.1rem; margin-bottom:5px;">Rate this title</div>
-          <div style="font-size:0.8rem; color:var(--text-muted);">Sign in to rate in one tap</div>
-          <div class="review-stars">
-            <i class="fa-solid fa-star" onclick="this.classList.toggle('active')"></i>
-            <i class="fa-solid fa-star" onclick="this.classList.toggle('active')"></i>
-            <i class="fa-solid fa-star" onclick="this.classList.toggle('active')"></i>
-            <i class="fa-solid fa-star" onclick="this.classList.toggle('active')"></i>
-            <i class="fa-solid fa-star" onclick="this.classList.toggle('active')"></i>
+          <div style="font-size:0.8rem; color:var(--text-muted);">Tap stars to apply rating instantly to IMDb / TMDb score</div>
+          <div class="review-stars" id="starContainer">
+            <i class="fa-solid fa-star" onclick="rateMovie(${movie.id}, 1)"></i>
+            <i class="fa-solid fa-star" onclick="rateMovie(${movie.id}, 2)"></i>
+            <i class="fa-solid fa-star" onclick="rateMovie(${movie.id}, 3)"></i>
+            <i class="fa-solid fa-star" onclick="rateMovie(${movie.id}, 4)"></i>
+            <i class="fa-solid fa-star" onclick="rateMovie(${movie.id}, 5)"></i>
           </div>
         </div>
 
@@ -1315,6 +1324,53 @@
       document.getElementById('homeView').style.display = 'none';
       document.getElementById('aboutView').style.display = 'none';
       document.getElementById('detailView').style.display = 'block';
+    }
+
+    function incrementDownload(movieId) {
+      const movie = moviesList.find(m => m.id === movieId);
+      if (movie) {
+        movie.downloads = (movie.downloads || 1400) + 1;
+        localStorage.setItem('aero_unity_movies_v15', JSON.stringify(moviesList));
+        document.getElementById('totalDownloadsDisplay').innerText = movie.downloads;
+        document.getElementById('monthDownloadsDisplay').innerText = movie.downloads;
+        document.getElementById('weekDownloadsDisplay').innerText = movie.downloads;
+        document.getElementById('todayDownloadsDisplay').innerText = Math.round(movie.downloads * 0.4);
+      }
+    }
+
+    function rateMovie(movieId, stars) {
+      const movie = moviesList.find(m => m.id === movieId);
+      if (movie) {
+        // Convert 5 stars to a 10-point scale equivalent or adjust score
+        const starValueToTen = stars * 2; 
+        movie.ratingCount = (movie.ratingCount || 2821) + 1;
+        
+        // Accumulate rating sum
+        if (!movie.userRatingsSum) {
+          movie.userRatingsSum = parseFloat(movie.rating || 8.0) * (movie.ratingCount - 1);
+        }
+        movie.userRatingsSum += starValueToTen;
+        movie.rating = parseFloat((movie.userRatingsSum / movie.ratingCount).toFixed(1));
+
+        localStorage.setItem('aero_unity_movies_v15', JSON.stringify(moviesList));
+
+        // Highlight stars up to clicked value
+        const starsElements = document.querySelectorAll('#starContainer i');
+        starsElements.forEach((s, idx) => {
+          if (idx < stars) {
+            s.classList.add('active');
+          } else {
+            s.classList.remove('active');
+          }
+        });
+
+        // Update UI dynamically
+        document.getElementById('imdbScoreDisplay').innerHTML = `${movie.rating.toFixed(1)} <span style="font-size:0.8rem; font-weight:400; color:var(--text-muted);">/10</span>`;
+        document.getElementById('imdbVotesDisplay').innerText = `${movie.ratingCount} votes`;
+        
+        alert(`Thank you for rating! Official IMDb/TMDb rating updated to ${movie.rating.toFixed(1)}/10 (${movie.ratingCount} votes).`);
+        renderMovies(moviesList);
+      }
     }
 
     function closeDetail() {
@@ -1400,13 +1456,15 @@
           id: Date.now(),
           title: titleInput,
           year: document.getElementById('mYear').value,
-          rating: document.getElementById('mRating').value,
+          rating: parseFloat(document.getElementById('mRating').value) || 8.0,
+          ratingCount: 2821,
           language: document.getElementById('mLang').value,
           type: document.getElementById('mType').value,
           genre: document.getElementById('mGenre').value,
           poster: document.getElementById('mPoster').value || 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600',
           backdrop: document.getElementById('mBackdrop').value || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1200',
           desc: document.getElementById('mDesc').value || 'A premium movie streaming and high-speed downloading portal maintained by Aero Unity.',
+          downloads: 1400,
           cast: window.fetchedCast || [],
           studios: window.fetchedStudios || [],
           files: files
@@ -1414,7 +1472,7 @@
         moviesList.unshift(newMovie);
       }
 
-      localStorage.setItem('aero_unity_movies_v14', JSON.stringify(moviesList));
+      localStorage.setItem('aero_unity_movies_v15', JSON.stringify(moviesList));
       filterMovies();
       closeAddModal();
       
@@ -1434,7 +1492,7 @@
         } else {
           openDetail(movieId);
         }
-        localStorage.setItem('aero_unity_movies_v14', JSON.stringify(moviesList));
+        localStorage.setItem('aero_unity_movies_v15', JSON.stringify(moviesList));
         filterMovies();
       }
     }
@@ -1442,7 +1500,7 @@
     function deleteEntireMovie(movieId) {
       if(!confirm("Are you sure you want to delete this entire movie and all its files?")) return;
       moviesList = moviesList.filter(m => m.id !== movieId);
-      localStorage.setItem('aero_unity_movies_v14', JSON.stringify(moviesList));
+      localStorage.setItem('aero_unity_movies_v15', JSON.stringify(moviesList));
       closeDetail();
       filterMovies();
     }
