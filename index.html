@@ -315,7 +315,7 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     }
 
-    /* Detail View Screen (Matching requested layout style) */
+    /* Detail View Screen */
     .detail-view {
       display: none;
       position: fixed;
@@ -447,7 +447,7 @@
       margin-right: auto;
     }
 
-    /* Ratings Grid Container (Matches Ref Image 3 & 4 style) */
+    /* Ratings Grid Container */
     .ratings-container {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -476,8 +476,38 @@
       letter-spacing: 0.5px;
     }
 
-    /* Cast / Crew Section (Ref Images 3, 4, 5 style) */
-    .cast-section {
+    /* Download Analytics Grid (Reference Image 5 layout) */
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 25px;
+    }
+
+    .analytics-box {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 18px;
+      text-align: left;
+    }
+
+    .analytics-box .stat-num {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: 5px;
+      color: var(--accent);
+    }
+
+    .analytics-box .stat-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Cast / Crew / Studios Section */
+    .cast-section, .studio-section {
       text-align: left;
       margin-bottom: 25px;
     }
@@ -491,14 +521,14 @@
       gap: 8px;
     }
 
-    .cast-grid {
+    .cast-grid, .studio-grid {
       display: flex;
       gap: 12px;
       overflow-x: auto;
       padding-bottom: 10px;
       scrollbar-width: none;
     }
-    .cast-grid::-webkit-scrollbar { display: none; }
+    .cast-grid::-webkit-scrollbar, .studio-grid::-webkit-scrollbar { display: none; }
 
     .cast-card {
       background: var(--card-bg);
@@ -539,7 +569,58 @@
       color: var(--text-muted);
     }
 
-    /* Download Group Card (Matches Ref Image 2 style) */
+    .studio-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 180px;
+      flex-shrink: 0;
+    }
+
+    .studio-card img {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+      border-radius: 4px;
+      background: #fff;
+      padding: 2px;
+    }
+
+    .studio-name {
+      font-size: 0.85rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    /* Review Section (Reference Image 5 style) */
+    .review-section {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 25px;
+      text-align: center;
+    }
+
+    .review-stars {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      font-size: 1.5rem;
+      color: #4B5563;
+      margin-top: 12px;
+      cursor: pointer;
+    }
+
+    .review-stars i:hover, .review-stars i.active {
+      color: var(--accent);
+    }
+
+    /* Download Group Card */
     .download-group-card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
@@ -825,7 +906,7 @@
     </div>
   </div>
 
-  <!-- Detail View Screen (Official TMDb / IMDb Layout with Cast & Crew) -->
+  <!-- Detail View Screen -->
   <div class="detail-view" id="detailView">
     <button class="back-btn" onclick="closeDetail()"><i class="fa-solid fa-arrow-left"></i></button>
     <div class="detail-hero-backdrop" id="detailBackdrop"></div>
@@ -839,7 +920,7 @@
     </div>
   </div>
 
-  <!-- Admin Add Movie Modal (Download Only, Multiple Files/Qualities Support, Official Metadata & Cast Detection) -->
+  <!-- Admin Add Movie Modal -->
   <div class="modal" id="addModal">
     <div class="modal-content">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
@@ -850,7 +931,7 @@
         <div class="form-group">
           <label>Movie / Series Title * (Auto-detects from Official TMDb / IMDb)</label>
           <div style="display:flex; gap:8px;">
-            <input type="text" id="mTitle" required placeholder="e.g. Ahaan or Inception" style="flex:1;">
+            <input type="text" id="mTitle" required placeholder="e.g. The Remarried Empress or Inception" style="flex:1;">
             <button type="button" class="btn-action primary" onclick="fetchTMDbData()" style="padding:10px 14px;"><i class="fa-solid fa-globe"></i> Fetch</button>
           </div>
         </div>
@@ -861,7 +942,7 @@
         </div>
 
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-          <div class="form-group"><label>Language</label><input type="text" id="mLang" value="Hindi"></div>
+          <div class="form-group"><label>Language</label><input type="text" id="mLang" value="Korean"></div>
           <div class="form-group"><label>Type</label>
             <select id="mType">
               <option value="Movie">Movie</option>
@@ -872,10 +953,10 @@
           </div>
         </div>
 
-        <div class="form-group"><label>Genres (comma separated)</label><input type="text" id="mGenre" value="Comedy, Drama"></div>
+        <div class="form-group"><label>Genres (comma separated)</label><input type="text" id="mGenre" value="Drama, Romance"></div>
         <div class="form-group"><label>Poster Image URL</label><input type="url" id="mPoster" placeholder="https://..."></div>
         <div class="form-group"><label>Backdrop Image URL (Header Banner)</label><input type="url" id="mBackdrop" placeholder="https://..."></div>
-        <div class="form-group"><label>Synopsis / Description</label><input type="text" id="mDesc" placeholder="Movie plot summary..."></div>
+        <div class="form-group"><label>Synopsis / Description</label><input type="text" id="mDesc" placeholder="Plot summary..."></div>
         
         <div style="margin: 15px 0 10px 0; font-weight:700; font-size:0.9rem; display:flex; justify-content:space-between; align-items:center;">
           <span>DOWNLOAD FILES / QUALITIES / EPISODES</span>
@@ -906,29 +987,32 @@
     const defaultMovies = [
       {
         id: 1,
-        title: "Ahaan",
-        year: 2019,
-        genre: "Comedy, Drama",
-        rating: "7.5",
-        language: "Hindi",
-        type: "Movie",
+        title: "The Remarried Empress",
+        year: 2026,
+        genre: "Drama, Romance",
+        rating: "8.2",
+        language: "Korean",
+        type: "Drama",
         poster: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600",
         backdrop: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1200",
-        desc: "Jilted by his wife, a man with OCD finds eye-opening common ground and camaraderie with his neighbour, a young man with Down Syndrome.",
+        desc: "Empress Navier of the Eastern Empire requests a divorce from her husband after he brings home a mistress, setting her eyes on the neighboring empire's crown.",
         cast: [
-          { name: "Arif Zakaria", role: "Actor", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300" },
-          { name: "Abhijit Kurhade", role: "Actor", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300" },
-          { name: "Nikhil Pherwani", role: "Director", img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300" }
+          { name: "Shin Min-a", role: "Navier", img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300" },
+          { name: "Lee Jae-wook", role: "Heinrey", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300" },
+          { name: "Kim Joo-hwan", role: "Director", img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300" }
+        ],
+        studios: [
+          { name: "Studio N", logo: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100" },
+          { name: "Naver Webtoon", logo: "https://images.unsplash.com/photo-1622979135225-d2ba269bc1df?w=100" }
         ],
         files: [
-          { name: "480p WEB-DL", size: "342.88 MB", downloadUrl: "https://www.w3schools.com/html/mov_bbb.mp4" },
-          { name: "720p WEB-DL", size: "527.63 MB", downloadUrl: "https://www.w3schools.com/html/mov_bbb.mp4" },
-          { name: "1080p WEB-DL", size: "1.21 GB", downloadUrl: "https://www.w3schools.com/html/mov_bbb.mp4" }
+          { name: "S01E01 720p WEB-DL", size: "450.20 MB", downloadUrl: "https://www.w3schools.com/html/mov_bbb.mp4" },
+          { name: "S01E02 720p WEB-DL", size: "462.10 MB", downloadUrl: "https://www.w3schools.com/html/mov_bbb.mp4" }
         ]
       }
     ];
 
-    let moviesList = JSON.parse(localStorage.getItem('aero_unity_movies_v13')) || defaultMovies;
+    let moviesList = JSON.parse(localStorage.getItem('aero_unity_movies_v14')) || defaultMovies;
     let currentCategory = 'All';
 
     function switchMainTab(tab) {
@@ -985,7 +1069,7 @@
       });
     }
 
-    // Official TMDb / IMDb Auto-fetch integration including Cast & Crew
+    // Official TMDb / IMDb Auto-fetch integration (Cast, Crew, Studios, Synopsis, Genres, Ratings)
     async function fetchTMDbData() {
       const query = document.getElementById('mTitle').value.trim();
       if(!query) {
@@ -1009,7 +1093,26 @@
           }
           document.getElementById('mType').value = item.media_type === 'tv' ? 'TV Show' : 'Movie';
 
-          // Fetch credits (Cast & Crew)
+          // Fetch genres
+          if(item.genre_ids && item.genre_ids.length > 0) {
+            const genresMap = {28:'Action',12:'Adventure',16:'Animation',35:'Comedy',80:'Crime',99:'Documentary',18:'Drama',10751:'Family',14:'Fantasy',36:'History',27:'Music',10749:'Romance',878:'Sci-Fi',53:'Thriller'};
+            const mappedGenres = item.genre_ids.slice(0, 3).map(id => genresMap[id] || 'Drama');
+            document.getElementById('mGenre').value = mappedGenres.join(', ');
+          }
+
+          // Fetch credits (Cast & Crew) & Studios (Networks/Production Companies)
+          const detailRes = await fetch(`https://api.themoviedb.org/3/${item.media_type || 'movie'}/${item.id}?api_key=1865f43a0549ca50d82349d42c3c136b`);
+          const detailData = await detailRes.json();
+          window.fetchedStudios = [];
+          if(detailData.production_companies) {
+            detailData.production_companies.slice(0, 3).forEach(comp => {
+              window.fetchedStudios.push({
+                name: comp.name,
+                logo: comp.logo_path ? `https://image.tmdb.org/t/p/w185${comp.logo_path}` : 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100'
+              });
+            });
+          }
+
           const creditsRes = await fetch(`https://api.themoviedb.org/3/${item.media_type || 'movie'}/${item.id}/credits?api_key=1865f43a0549ca50d82349d42c3c136b`);
           const creditsData = await creditsRes.json();
           window.fetchedCast = [];
@@ -1023,17 +1126,17 @@
             });
           }
           if(creditsData.crew) {
-            const director = creditsData.crew.find(cr => cr.job === 'Director');
+            const director = creditsData.crew.find(cr => cr.job === 'Director' || cr.job === 'Creator' || cr.job === 'Executive Producer');
             if(director) {
               window.fetchedCast.push({
                 name: director.name,
-                role: 'Director',
+                role: director.job || 'Director',
                 img: director.profile_path ? `https://image.tmdb.org/t/p/w185${director.profile_path}` : 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300'
               });
             }
           }
 
-          alert("Official IMDb / TMDb metadata & cast successfully detected and loaded!");
+          alert("Official IMDb / TMDb metadata, cast, and studios successfully detected and loaded!");
         } else {
           alert("No official records found on TMDb. You can enter details manually.");
         }
@@ -1089,6 +1192,18 @@
         });
       }
 
+      let studioHtml = '';
+      if(movie.studios && movie.studios.length > 0) {
+        movie.studios.forEach(s => {
+          studioHtml += `
+            <div class="studio-card">
+              <img src="${s.logo}" alt="${s.name}">
+              <div class="studio-name">${s.name}</div>
+            </div>
+          `;
+        });
+      }
+
       document.getElementById('detailContent').innerHTML = `
         <div class="detail-poster-card">
           <img src="${movie.poster}" alt="${movie.title}">
@@ -1100,20 +1215,20 @@
           <div class="meta-badge"><i class="fa-regular fa-calendar"></i> ${movie.year}</div>
           <div class="meta-badge"><i class="fa-solid fa-film"></i> ${movie.type || 'Movie'}</div>
           <div class="meta-badge rating"><i class="fa-solid fa-star"></i> WEB-DL</div>
-          <div class="meta-badge"><i class="fa-solid fa-volume-high"></i> ${movie.language || 'Hindi'}</div>
+          <div class="meta-badge"><i class="fa-solid fa-volume-high"></i> ${movie.language || 'Korean'}</div>
           ${genresHtml}
         </div>
 
         <div class="action-row-buttons">
           <button class="icon-pill-btn" onclick="navigator.clipboard.writeText(window.location.href); alert('Link copied!');"><i class="fa-solid fa-share-nodes"></i> Share</button>
-          ${isAdmin ? `<button class="icon-pill-btn" onclick="openAddModalForMovie('${movie.title.replace(/'/g, "\\'")}')"><i class="fa-solid fa-plus"></i> Add File / Episode</button>` : ''}
+          ${isAdmin ? `<button class="icon-pill-btn" onclick="openAddModalForMovie('${movie.title.replace(/'/g, "\\'")}')"><i class="fa-solid fa-plus"></i> Add File</button>` : ''}
         </div>
 
         <div class="detail-desc">${movie.desc || 'A premium movie streaming and high-speed downloading portal maintained by Aero Unity.'}</div>
         
         ${isAdmin ? `<button class="btn-delete" onclick="deleteEntireMovie(${movie.id})" style="margin-bottom:20px; width:100%; justify-content:center; padding:10px;"><i class="fa-solid fa-trash"></i> Delete Entire Movie Entry</button>` : ''}
 
-        <!-- Official Ratings Grid (Matches Ref Image 3 & 4 style) -->
+        <!-- Official Ratings Grid (Matches Ref Image 4 style) -->
         <div class="ratings-container">
           <div class="rating-box">
             <div class="score">4.0 <span style="font-size:0.8rem; font-weight:400; color:var(--text-muted);">/5</span></div>
@@ -1127,10 +1242,40 @@
           </div>
         </div>
 
-        <!-- Cast & Crew Scrollable Section (Matches Ref Images 3, 4, 5 style) -->
+        <!-- Download Analytics Grid (Matches Ref Image 5 style) -->
+        <div class="analytics-grid">
+          <div class="analytics-box">
+            <div class="stat-num">1.4k</div>
+            <div class="stat-label">Total Downloads</div>
+          </div>
+          <div class="analytics-box">
+            <div class="stat-num" style="color:#22C55E;">1.4k</div>
+            <div class="stat-label">Last 30 Days</div>
+          </div>
+          <div class="analytics-box">
+            <div class="stat-num" style="color:#3B82F6;">1.4k</div>
+            <div class="stat-label">Last 7 Days</div>
+          </div>
+          <div class="analytics-box">
+            <div class="stat-num" style="color:#A855F7;">572</div>
+            <div class="stat-label">Today</div>
+          </div>
+        </div>
+
+        <!-- Studios Section (Matches Ref Image 4 style) -->
+        ${studioHtml ? `
+        <div class="studio-section">
+          <div class="section-subtitle"><i class="fa-solid fa-building" style="color:var(--accent);"></i> Studios</div>
+          <div class="studio-grid">
+            ${studioHtml}
+          </div>
+        </div>
+        ` : ''}
+
+        <!-- Cast & Director Section (Matches Ref Image 3 style) -->
         ${castHtml ? `
         <div class="cast-section">
-          <div class="section-subtitle"><i class="fa-solid fa-users" style="color:var(--accent);"></i> Cast & Crew</div>
+          <div class="section-subtitle"><i class="fa-solid fa-users" style="color:var(--accent);"></i> Cast & Director</div>
           <div class="cast-grid">
             ${castHtml}
           </div>
@@ -1141,12 +1286,25 @@
         <div class="download-group-card">
           <div class="download-group-header">
             <span style="font-weight:700; font-size:0.95rem; display:flex; align-items:center; gap:8px;">
-              <i class="fa-solid fa-download" style="color:var(--accent-red);"></i> Download ${movie.title} (${movie.year}) in ${movie.language || 'Hindi'}
+              <i class="fa-solid fa-download" style="color:var(--accent-red);"></i> Download ${movie.title} (${movie.year}) in ${movie.language || 'Korean'}
             </span>
             <span style="background:var(--card-border); padding:3px 8px; border-radius:6px; font-size:0.75rem;">${movie.files ? movie.files.length : 0} Links</span>
           </div>
           ${episodesHtml}
           ${isAdmin ? `<button class="btn-action primary" onclick="openAddModalForMovie('${movie.title.replace(/'/g, "\\'")}')" style="width:100%; margin-top:10px; justify-content:center; padding:10px;"><i class="fa-solid fa-plus"></i> Add Multiple Files / Episodes Here</button>` : ''}
+        </div>
+
+        <!-- Reviews Section (Matches Ref Image 5 style) -->
+        <div class="review-section">
+          <div style="font-weight:800; font-size:1.1rem; margin-bottom:5px;">Rate this title</div>
+          <div style="font-size:0.8rem; color:var(--text-muted);">Sign in to rate in one tap</div>
+          <div class="review-stars">
+            <i class="fa-solid fa-star" onclick="this.classList.toggle('active')"></i>
+            <i class="fa-solid fa-star" onclick="this.classList.toggle('active')"></i>
+            <i class="fa-solid fa-star" onclick="this.classList.toggle('active')"></i>
+            <i class="fa-solid fa-star" onclick="this.classList.toggle('active')"></i>
+            <i class="fa-solid fa-star" onclick="this.classList.toggle('active')"></i>
+          </div>
         </div>
 
         <div style="margin-top: 20px;">
@@ -1250,12 +1408,13 @@
           backdrop: document.getElementById('mBackdrop').value || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1200',
           desc: document.getElementById('mDesc').value || 'A premium movie streaming and high-speed downloading portal maintained by Aero Unity.',
           cast: window.fetchedCast || [],
+          studios: window.fetchedStudios || [],
           files: files
         };
         moviesList.unshift(newMovie);
       }
 
-      localStorage.setItem('aero_unity_movies_v13', JSON.stringify(moviesList));
+      localStorage.setItem('aero_unity_movies_v14', JSON.stringify(moviesList));
       filterMovies();
       closeAddModal();
       
@@ -1275,7 +1434,7 @@
         } else {
           openDetail(movieId);
         }
-        localStorage.setItem('aero_unity_movies_v13', JSON.stringify(moviesList));
+        localStorage.setItem('aero_unity_movies_v14', JSON.stringify(moviesList));
         filterMovies();
       }
     }
@@ -1283,7 +1442,7 @@
     function deleteEntireMovie(movieId) {
       if(!confirm("Are you sure you want to delete this entire movie and all its files?")) return;
       moviesList = moviesList.filter(m => m.id !== movieId);
-      localStorage.setItem('aero_unity_movies_v13', JSON.stringify(moviesList));
+      localStorage.setItem('aero_unity_movies_v14', JSON.stringify(moviesList));
       closeDetail();
       filterMovies();
     }
