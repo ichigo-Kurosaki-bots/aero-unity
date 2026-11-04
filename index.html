@@ -457,7 +457,7 @@
         <h1>Aero Unity Movies</h1>
       </div>
     </div>
-    <!-- ADD FILE button unlocked only with ?admin=true, positioned on right side -->
+    <!-- ADD FILE button unlocked only with ?admin=true -->
     <button class="btn-add" id="addFileBtn" onclick="openAddModal()">
       <i class="fa-solid fa-plus"></i> ADD FILE
     </button>
@@ -641,14 +641,17 @@
         <div class="detail-title">${movie.title}</div>
         <div style="font-size:0.85rem; color:var(--accent); margin-bottom:10px;">⭐ ${movie.rating} / 10 &nbsp;•&nbsp; ${movie.year} &nbsp;•&nbsp; ${movie.genre}</div>
         <div class="detail-desc">${movie.desc || 'This File Is Added By @Aero_Unity.'}</div>
-        ${isAdmin ? `<button class="btn-delete" onclick="deleteEntireMovie(${movie.id})" style="margin-bottom:15px; width:100%; justify-content:center; padding:10px;"><i class="fa-solid fa-trash"></i> Delete Entire Movie Entry</button>` : ''}
+        ${isAdmin ? `<button class="btn-delete" onclick="deleteEntireMovie(${movie.id})" style="margin-bottom:12px; width:100%; justify-content:center; padding:10px;"><i class="fa-solid fa-trash"></i> Delete Entire Movie Entry</button>` : ''}
         
-        <!-- Fixed Updates Channel Button pointing to @Aero_Unity -->
+        <!-- Updates Channel Button pointing to @Aero_Unity -->
         <div style="margin-bottom: 15px;">
           <a href="https://t.me/Aero_Unity" target="_blank" class="btn-action" style="width:100%; justify-content:center; background:#1E2538;"><i class="fa-brands fa-telegram"></i> Updates Channel</a>
         </div>
 
-        <h4 style="margin-bottom:10px;">Available Qualities / Episodes:</h4>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <h4>Available Qualities / Episodes:</h4>
+          ${isAdmin ? `<button class="btn-action primary" onclick="openAddModalForMovie('${movie.title.replace(/'/g, "\\'")}')" style="padding:5px 12px; font-size:0.75rem;"><i class="fa-solid fa-plus"></i> Add Quality / Episode</button>` : ''}
+        </div>
         <div class="episodes-list">${episodesHtml}</div>
       `;
 
@@ -691,7 +694,16 @@
       }
     }
 
-    function openAddModal() { document.getElementById('addModal').style.display = 'flex'; }
+    function openAddModal() { 
+      document.getElementById('mTitle').value = '';
+      document.getElementById('addModal').style.display = 'flex'; 
+    }
+
+    function openAddModalForMovie(title) {
+      openAddModal();
+      document.getElementById('mTitle').value = title;
+    }
+
     function closeAddModal() { document.getElementById('addModal').style.display = 'none'; }
 
     function addEpisodeRow() {
@@ -740,6 +752,10 @@
       localStorage.setItem('aero_unity_movies_v11', JSON.stringify(moviesList));
       filterMovies();
       closeAddModal();
+      
+      if (existingMovie) {
+        openDetail(existingMovie.id);
+      }
     }
 
     function deleteFile(movieId, fileIndex) {
