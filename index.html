@@ -315,7 +315,7 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     }
 
-    /* Detail View Screen matching reference layout */
+    /* Detail View Screen (Matching requested layout style) */
     .detail-view {
       display: none;
       position: fixed;
@@ -476,7 +476,70 @@
       letter-spacing: 0.5px;
     }
 
-    /* Download Group Card (Matches Ref Image 2 & 3 style) */
+    /* Cast / Crew Section (Ref Images 3, 4, 5 style) */
+    .cast-section {
+      text-align: left;
+      margin-bottom: 25px;
+    }
+
+    .section-subtitle {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .cast-grid {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+      scrollbar-width: none;
+    }
+    .cast-grid::-webkit-scrollbar { display: none; }
+
+    .cast-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      min-width: 110px;
+      max-width: 110px;
+      padding: 8px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .cast-img-box {
+      width: 100%;
+      aspect-ratio: 1/1;
+      border-radius: 50%;
+      overflow: hidden;
+      margin-bottom: 8px;
+      background: #1E2538;
+    }
+
+    .cast-img-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .cast-name {
+      font-size: 0.8rem;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .cast-role {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    /* Download Group Card (Matches Ref Image 2 style) */
     .download-group-card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
@@ -576,7 +639,7 @@
       gap: 4px;
     }
 
-    /* Bottom Navigation Bar - ONLY HOME BUTTON */
+    /* Bottom Navigation Bar */
     .bottom-nav {
       position: fixed;
       bottom: 0; left: 0; width: 100%;
@@ -762,7 +825,7 @@
     </div>
   </div>
 
-  <!-- Detail View Screen (Official TMDb / IMDb Layout) -->
+  <!-- Detail View Screen (Official TMDb / IMDb Layout with Cast & Crew) -->
   <div class="detail-view" id="detailView">
     <button class="back-btn" onclick="closeDetail()"><i class="fa-solid fa-arrow-left"></i></button>
     <div class="detail-hero-backdrop" id="detailBackdrop"></div>
@@ -776,16 +839,16 @@
     </div>
   </div>
 
-  <!-- Admin Add Movie Modal (Download Only, Official Metadata Integration) -->
+  <!-- Admin Add Movie Modal (Download Only, Multiple Files/Qualities Support, Official Metadata & Cast Detection) -->
   <div class="modal" id="addModal">
     <div class="modal-content">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-        <h3>ADD MOVIE / SERIES ENTRY</h3>
+        <h3 id="modalHeading">ADD MOVIE / SERIES ENTRY</h3>
         <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeAddModal()"></i>
       </div>
       <form onsubmit="saveMovie(event)">
         <div class="form-group">
-          <label>Movie Title * (Auto-detects from Official TMDb / IMDb)</label>
+          <label>Movie / Series Title * (Auto-detects from Official TMDb / IMDb)</label>
           <div style="display:flex; gap:8px;">
             <input type="text" id="mTitle" required placeholder="e.g. Ahaan or Inception" style="flex:1;">
             <button type="button" class="btn-action primary" onclick="fetchTMDbData()" style="padding:10px 14px;"><i class="fa-solid fa-globe"></i> Fetch</button>
@@ -815,13 +878,13 @@
         <div class="form-group"><label>Synopsis / Description</label><input type="text" id="mDesc" placeholder="Movie plot summary..."></div>
         
         <div style="margin: 15px 0 10px 0; font-weight:700; font-size:0.9rem; display:flex; justify-content:space-between; align-items:center;">
-          <span>DOWNLOAD FILES / QUALITIES</span>
+          <span>DOWNLOAD FILES / QUALITIES / EPISODES</span>
           <button type="button" class="btn-action primary" onclick="addEpisodeRow()" style="padding:4px 10px; font-size:0.75rem;">+ Add File</button>
         </div>
         
         <div id="episodesContainer">
           <div class="ep-row">
-            <input type="text" placeholder="Quality Name (e.g. 720p WEB-DL)" class="ep-name" style="width:100%; padding:6px; margin-bottom:6px; background:#000; border:1px solid #1E2538; color:#fff;" required>
+            <input type="text" placeholder="Quality / Episode Name (e.g. 720p WEB-DL or S01E01)" class="ep-name" style="width:100%; padding:6px; margin-bottom:6px; background:#000; border:1px solid #1E2538; color:#fff;" required>
             <input type="text" placeholder="File Size (e.g. 527.63 MB)" class="ep-size" style="width:100%; padding:6px; margin-bottom:6px; background:#000; border:1px solid #1E2538; color:#fff;" required>
             <input type="url" placeholder="Direct Download URL" class="ep-download" style="width:100%; padding:6px; background:#000; border:1px solid #1E2538; color:#fff;" required>
           </div>
@@ -852,6 +915,11 @@
         poster: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600",
         backdrop: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1200",
         desc: "Jilted by his wife, a man with OCD finds eye-opening common ground and camaraderie with his neighbour, a young man with Down Syndrome.",
+        cast: [
+          { name: "Arif Zakaria", role: "Actor", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300" },
+          { name: "Abhijit Kurhade", role: "Actor", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300" },
+          { name: "Nikhil Pherwani", role: "Director", img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300" }
+        ],
         files: [
           { name: "480p WEB-DL", size: "342.88 MB", downloadUrl: "https://www.w3schools.com/html/mov_bbb.mp4" },
           { name: "720p WEB-DL", size: "527.63 MB", downloadUrl: "https://www.w3schools.com/html/mov_bbb.mp4" },
@@ -860,7 +928,7 @@
       }
     ];
 
-    let moviesList = JSON.parse(localStorage.getItem('aero_unity_movies_v12')) || defaultMovies;
+    let moviesList = JSON.parse(localStorage.getItem('aero_unity_movies_v13')) || defaultMovies;
     let currentCategory = 'All';
 
     function switchMainTab(tab) {
@@ -917,7 +985,7 @@
       });
     }
 
-    // Official TMDb / IMDb Auto-fetch integration
+    // Official TMDb / IMDb Auto-fetch integration including Cast & Crew
     async function fetchTMDbData() {
       const query = document.getElementById('mTitle').value.trim();
       if(!query) {
@@ -940,7 +1008,32 @@
             document.getElementById('mBackdrop').value = `https://image.tmdb.org/t/p/w1280${item.backdrop_path}`;
           }
           document.getElementById('mType').value = item.media_type === 'tv' ? 'TV Show' : 'Movie';
-          alert("Official IMDb / TMDb metadata successfully detected and loaded!");
+
+          // Fetch credits (Cast & Crew)
+          const creditsRes = await fetch(`https://api.themoviedb.org/3/${item.media_type || 'movie'}/${item.id}/credits?api_key=1865f43a0549ca50d82349d42c3c136b`);
+          const creditsData = await creditsRes.json();
+          window.fetchedCast = [];
+          if(creditsData.cast) {
+            creditsData.cast.slice(0, 6).forEach(c => {
+              window.fetchedCast.push({
+                name: c.name,
+                role: c.character || 'Actor',
+                img: c.profile_path ? `https://image.tmdb.org/t/p/w185${c.profile_path}` : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=300'
+              });
+            });
+          }
+          if(creditsData.crew) {
+            const director = creditsData.crew.find(cr => cr.job === 'Director');
+            if(director) {
+              window.fetchedCast.push({
+                name: director.name,
+                role: 'Director',
+                img: director.profile_path ? `https://image.tmdb.org/t/p/w185${director.profile_path}` : 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300'
+              });
+            }
+          }
+
+          alert("Official IMDb / TMDb metadata & cast successfully detected and loaded!");
         } else {
           alert("No official records found on TMDb. You can enter details manually.");
         }
@@ -983,6 +1076,19 @@
         });
       }
 
+      let castHtml = '';
+      if(movie.cast && movie.cast.length > 0) {
+        movie.cast.forEach(c => {
+          castHtml += `
+            <div class="cast-card">
+              <div class="cast-img-box"><img src="${c.img}" alt="${c.name}"></div>
+              <div class="cast-name">${c.name}</div>
+              <div class="cast-role">${c.role}</div>
+            </div>
+          `;
+        });
+      }
+
       document.getElementById('detailContent').innerHTML = `
         <div class="detail-poster-card">
           <img src="${movie.poster}" alt="${movie.title}">
@@ -1000,7 +1106,7 @@
 
         <div class="action-row-buttons">
           <button class="icon-pill-btn" onclick="navigator.clipboard.writeText(window.location.href); alert('Link copied!');"><i class="fa-solid fa-share-nodes"></i> Share</button>
-          ${isAdmin ? `<button class="icon-pill-btn" onclick="openAddModalForMovie('${movie.title.replace(/'/g, "\\'")}')"><i class="fa-solid fa-plus"></i> Add File</button>` : ''}
+          ${isAdmin ? `<button class="icon-pill-btn" onclick="openAddModalForMovie('${movie.title.replace(/'/g, "\\'")}')"><i class="fa-solid fa-plus"></i> Add File / Episode</button>` : ''}
         </div>
 
         <div class="detail-desc">${movie.desc || 'A premium movie streaming and high-speed downloading portal maintained by Aero Unity.'}</div>
@@ -1015,21 +1121,32 @@
             <div style="font-size:0.7rem; color:var(--text-muted); margin-top:4px;">52,034 votes</div>
           </div>
           <div class="rating-box">
-            <div class="score" style="color:var(--accent);">7.5 <span style="font-size:0.8rem; font-weight:400; color:var(--text-muted);">/10</span></div>
+            <div class="score" style="color:var(--accent);">${movie.rating} <span style="font-size:0.8rem; font-weight:400; color:var(--text-muted);">/10</span></div>
             <div class="source-label">IMDb Official</div>
             <div style="font-size:0.7rem; color:var(--text-muted); margin-top:4px;">2,821 votes</div>
           </div>
         </div>
 
+        <!-- Cast & Crew Scrollable Section (Matches Ref Images 3, 4, 5 style) -->
+        ${castHtml ? `
+        <div class="cast-section">
+          <div class="section-subtitle"><i class="fa-solid fa-users" style="color:var(--accent);"></i> Cast & Crew</div>
+          <div class="cast-grid">
+            ${castHtml}
+          </div>
+        </div>
+        ` : ''}
+
         <!-- Download Section Container (Matches Ref Image 2 style) -->
         <div class="download-group-card">
           <div class="download-group-header">
-            <span style="font-weight:700; font-size:0.95srem; display:flex; align-items:center; gap:8px;">
+            <span style="font-weight:700; font-size:0.95rem; display:flex; align-items:center; gap:8px;">
               <i class="fa-solid fa-download" style="color:var(--accent-red);"></i> Download ${movie.title} (${movie.year}) in ${movie.language || 'Hindi'}
             </span>
             <span style="background:var(--card-border); padding:3px 8px; border-radius:6px; font-size:0.75rem;">${movie.files ? movie.files.length : 0} Links</span>
           </div>
           ${episodesHtml}
+          ${isAdmin ? `<button class="btn-action primary" onclick="openAddModalForMovie('${movie.title.replace(/'/g, "\\'")}')" style="width:100%; margin-top:10px; justify-content:center; padding:10px;"><i class="fa-solid fa-plus"></i> Add Multiple Files / Episodes Here</button>` : ''}
         </div>
 
         <div style="margin-top: 20px;">
@@ -1079,12 +1196,14 @@
 
     function openAddModal() { 
       document.getElementById('mTitle').value = '';
+      document.getElementById('modalHeading').innerText = "ADD MOVIE / SERIES ENTRY";
       document.getElementById('addModal').style.display = 'flex'; 
     }
 
     function openAddModalForMovie(title) {
       openAddModal();
       document.getElementById('mTitle').value = title;
+      document.getElementById('modalHeading').innerText = "ADD MORE FILES / EPISODES TO " + title.toUpperCase();
     }
 
     function closeAddModal() { document.getElementById('addModal').style.display = 'none'; }
@@ -1094,7 +1213,7 @@
       const row = document.createElement('div');
       row.className = 'ep-row';
       row.innerHTML = `
-        <input type="text" placeholder="Quality Name (e.g. 720p WEB-DL)" class="ep-name" style="width:100%; padding:6px; margin-bottom:6px; background:#000; border:1px solid #1E2538; color:#fff;" required>
+        <input type="text" placeholder="Quality / Episode Name (e.g. 720p WEB-DL or S01E01)" class="ep-name" style="width:100%; padding:6px; margin-bottom:6px; background:#000; border:1px solid #1E2538; color:#fff;" required>
         <input type="text" placeholder="File Size (e.g. 527.63 MB)" class="ep-size" style="width:100%; padding:6px; margin-bottom:6px; background:#000; border:1px solid #1E2538; color:#fff;" required>
         <input type="url" placeholder="Direct Download URL" class="ep-download" style="width:100%; padding:6px; background:#000; border:1px solid #1E2538; color:#fff;" required>
       `;
@@ -1130,12 +1249,13 @@
           poster: document.getElementById('mPoster').value || 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600',
           backdrop: document.getElementById('mBackdrop').value || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1200',
           desc: document.getElementById('mDesc').value || 'A premium movie streaming and high-speed downloading portal maintained by Aero Unity.',
+          cast: window.fetchedCast || [],
           files: files
         };
         moviesList.unshift(newMovie);
       }
 
-      localStorage.setItem('aero_unity_movies_v12', JSON.stringify(moviesList));
+      localStorage.setItem('aero_unity_movies_v13', JSON.stringify(moviesList));
       filterMovies();
       closeAddModal();
       
@@ -1155,7 +1275,7 @@
         } else {
           openDetail(movieId);
         }
-        localStorage.setItem('aero_unity_movies_v12', JSON.stringify(moviesList));
+        localStorage.setItem('aero_unity_movies_v13', JSON.stringify(moviesList));
         filterMovies();
       }
     }
@@ -1163,7 +1283,7 @@
     function deleteEntireMovie(movieId) {
       if(!confirm("Are you sure you want to delete this entire movie and all its files?")) return;
       moviesList = moviesList.filter(m => m.id !== movieId);
-      localStorage.setItem('aero_unity_movies_v12', JSON.stringify(moviesList));
+      localStorage.setItem('aero_unity_movies_v13', JSON.stringify(moviesList));
       closeDetail();
       filterMovies();
     }
